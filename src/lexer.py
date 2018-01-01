@@ -1,4 +1,7 @@
 from ply import lex as lex
+from ply.lex import TOKEN
+
+tab_width = 4
 
 data_type_tokens = [
 	'CHAR', 'SHORT', 'INT', 'LONG', 
@@ -26,3 +29,38 @@ variable_tokens = [
 	'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL'
 ]
 
+literals = [';', '{', '}', ',', ':', '=', '(', ')', 
+			'[', ']', '.', '&', '!', '~', '-', '+',
+			'*', '/', '%', '<', '>', '^', '|', '?',
+]
+
+reserved_keywords = dict()
+for item in (data_type_tokens + control_flow_tokens):
+	reserved_keywords[item.lower()] = item
+
+
+constant_patterns = {
+	r'0[xX][a-fA-F0-9]+': 'hex',
+	r'0[0-9]+': 'oct',
+	r'[0-9]+': 'dec',
+	r'[0-9]+[Ee][+-]?[0-9]+': 'exp',
+	r'[0-9]*\.[0-9]+([Ee][+-]?[0-9]+)?': 'float',
+	r'[0-9]+\.[0-9]*([Ee][+-]?[0-9]+)?': 'float',
+}
+
+t_ignore = r' \t\v\n\f'
+
+def t_IDENTIFIER(t):
+	r'[a-zA-Z_][a-zA-Z_0-9]*'
+	t.type = reserved_keywords.get(t.value, 'IDENTIFIER')
+	return t
+
+
+@TOKEN('|'.join(constant_patterns.keys()))
+def t_CONSTANT(t):
+	t.value = float(t.value)
+	return t
+
+
+def t_STRING_LITERAL(t):
+	r'"(\\.|[^\\"])*"'
