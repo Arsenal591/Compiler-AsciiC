@@ -64,3 +64,26 @@ def t_CONSTANT(t):
 
 def t_STRING_LITERAL(t):
 	r'"(\\.|[^\\"])*"'
+
+t_LEFT_ASSIGN = r'<<='
+t_RIGHT_ASSIGN = r'>>='
+t_ADD_ASSIGN = r'\+='
+t_SUB_ASSIGN = r'-='
+t_MUL_ASSIGN = r'\*='
+t_DIV_ASSIGN = r'/='
+t_MOD_ASSIGN = r'%='
+t_AND_ASSIGN = r'&='
+t_XOR_ASSIGN = r'^='
+t_OR_ASSIGN = r'\|='
+
+t_LEFT_OP = r'<<'
+t_RIGHT_OP = r'>>'
+t_INC_OP = r'\+\+'
+t_DEC_OP = r'--'
+t_PTR_OP = r'->'
+t_AND_OP = r'&&'
+t_OR_OP = r'\|\|'
+t_LE_OP = r'<='
+t_GE_OP = r'>='
+t_EQ_OP = r'=='
+t_NE_OP = r'!='
