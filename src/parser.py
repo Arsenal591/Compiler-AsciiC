@@ -1,6 +1,21 @@
 from ply import yacc
 from lexer import tokens
 
+
+precedence = (
+	('left', 'OR_OP'),
+	('left', 'AND_OP'),
+	('left', '|'),
+	('left', '^'),
+	('left', '&'),
+	('left', 'EQ_OP', 'NE_OP'),
+	('left', '<', '>', 'LE_OP', 'GE_OP'),
+	('left', 'LEFT_OP', 'RIGHT_OP'),
+	('left', '+', '-'),
+	('left', '*', '/', '%'),
+)
+
+
 def p_primary_expression(p):
 	'''
 	primary_expression : IDENTIFIER
