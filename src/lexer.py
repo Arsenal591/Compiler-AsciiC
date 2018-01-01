@@ -29,6 +29,9 @@ variable_tokens = [
 	'IDENTIFIER', 'CONSTANT', 'STRING_LITERAL'
 ]
 
+tokens = data_type_tokens + operation_tokens + assign_tokens \
++ control_flow_tokens + variable_tokens
+
 literals = [';', '{', '}', ',', ':', '=', '(', ')', 
 			'[', ']', '.', '&', '!', '~', '-', '+',
 			'*', '/', '%', '<', '>', '^', '|', '?',
@@ -48,7 +51,7 @@ constant_patterns = {
 	r'[0-9]+\.[0-9]*([Ee][+-]?[0-9]+)?': 'float',
 }
 
-t_ignore = r' \t\v\n\f'
+t_ignore = ' \t\n\v\f'
 
 def t_IDENTIFIER(t):
 	r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -92,3 +95,5 @@ t_LE_OP = r'<='
 t_GE_OP = r'>='
 t_EQ_OP = r'=='
 t_NE_OP = r'!='
+
+lex.lex()
