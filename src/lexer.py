@@ -65,6 +65,11 @@ def t_CONSTANT(t):
 def t_STRING_LITERAL(t):
 	r'"(\\.|[^\\"])*"'
 
+
+def t_error(t):
+	pt.lexer.skip(1)
+
+
 t_LEFT_ASSIGN = r'<<='
 t_RIGHT_ASSIGN = r'>>='
 t_ADD_ASSIGN = r'\+='
