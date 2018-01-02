@@ -49,6 +49,23 @@ def p_argument_expression_list(p):
 	pass
 
 
+def p_assignment_operator(p):
+	'''
+	assignment_operator : '='
+		| MUL_ASSIGN
+		| DIV_ASSIGN
+		| MOD_ASSIGN
+		| ADD_ASSIGN
+		| SUB_ASSIGN
+		| LEFT_ASSIGN
+		| RIGHT_ASSIGN
+		| AND_ASSIGN
+		| XOR_ASSIGN
+		| OR_ASSIGN
+	'''
+	pass
+
+
 def p_assignment_expression(p):
 	'''
 	assignment_expression : conditional_expression
@@ -60,14 +77,21 @@ def p_assignment_expression(p):
 def p_conditional_expression(p):
 	'''
 	conditional_expression : binary_expression
-		| general_expression '?' expression ':' conditional_expression
+		| binary_expression '?' expression ':' conditional_expression
 	'''
 	pass
 
 
 def p_unary_operator(p):
 	'''
-	unary_operator : INC_OP | DEC_OP | '&' | '*' | '+' | '-' | '~' | '!'
+	unary_operator : INC_OP 
+		| DEC_OP 
+		| '&' 
+		| '*' 
+		| '+' 
+		| '-' 
+		| '~' 
+		| '!'
 	'''
 	pass
 
@@ -88,7 +112,7 @@ def p_binary_expression(p):
 		| binary_expression '|' binary_expression
 		| binary_expression '^' binary_expression
 		| binary_expression '&' binary_expression
-		| binary_expression'EQ_OP binary_expression
+		| binary_expression EQ_OP binary_expression
 		| binary_expression NE_OP binary_expression
 		| binary_expression '<' binary_expression
 		| binary_expression '>' binary_expression
@@ -102,7 +126,217 @@ def p_binary_expression(p):
 		| binary_expression '/' binary_expression
 		| binary_expression '%' binary_expression
 	'''
-	pass 
+	pass
+
+
+def p_expression(p):
+	'''
+	expression : assignment_expression
+		| expression ',' assignment_expression
+	'''
+	pass
+
+
+def p_constant_expression(p):
+	'''
+	constant_expression : conditional_expression
+	'''
+	pass
+
+
+def p_declaration(p):
+	'''
+	declaration : type_specifier ';'
+		| type_specifier init_declaration_list ';'
+	'''
+	pass
+
+
+def p_init_declaration_list(p):
+	'''
+	init_declaration_list : init_declarator
+		| init_declaration_list ',' init_declarator
+	'''
+	pass
+
+
+def p_init_declarator(p):
+	'''
+	init_declarator : declarator
+		| declarator '=' initializer
+	'''
+	pass
+
+
+#  struct_or_union_specifier
+#	enum_specifier
+def p_type_specifier(p):
+	'''
+	type_specifier : VOID
+		| CHAR
+		| SHORT
+		| INT
+		| LONG
+		| FLOAT
+		| DOUBLE
+		| IDENTIFIER
+	'''
+	pass
+
+
+def p_declarator(p):
+	'''
+	declarator : pointer direct_declarator
+		| direct_declarator
+	'''
+	pass
+
+
+def p_pointer(p):
+	'''
+	pointer : '*'
+		| '*' pointer
+	'''
+	pass
+
+
+def p_direct_declarator(p):
+	'''
+	direct_declarator : IDENTIFIER
+		| '(' declarator ')'
+		| direct_declarator '[' constant_expression ']'
+		| direct_declarator '[' ']'
+		| direct_declarator '(' parameter_type_list ')'
+		| direct_declarator '(' ')'
+	'''
+	pass
+
+
+def p_parameter_type_list(p):
+	'''
+	parameter_type_list : parameter_declaration
+		| parameter_type_list ',' parameter_declaration
+	'''
+	pass
+
+
+def p_parameter_declaration(p):
+	'''
+	parameter_declaration : type_specifier declarator
+		| type_specifier
+	'''
+	pass
+
+
+def p_initializer(p):
+	'''
+	initializer : assignment_expression
+		| '{' initializer_list '}'
+		| '{' initializer_list ',' '}'
+	'''
+	pass
+
+
+def p_initializer_list(p):
+	'''
+	initializer_list : initializer
+		| initializer_list ',' initializer
+	'''
+	pass
+
+
+def p_statement(p):
+	'''
+	statement : compound_statement
+		| expression_statement
+		| selection_statement
+		| iteration_statement
+		| jump_statement
+	'''
+	pass
+
+
+def p_compound_statement(p):
+	'''
+	compound_statement : '{' '}'
+		| '{' statement_list '}'
+		| '{' declaration_list '}'
+		| '{' declaration_list statement_list '}'
+	'''
+	pass
+
+
+def p_declaration_list(p):
+	'''
+	declaration_list : declaration
+		| declaration_list declaration
+	'''
+	pass
+
+
+def p_statement_list(p):
+	'''
+	statement_list : statement
+		| statement_list statement
+	'''
+	pass
+
+
+def p_expression_statement(p):
+	'''
+	expression_statement : ';'
+		| expression ';'
+	'''
+	pass
+
+
+def p_selection_statement(p):
+	'''
+	selection_statement : IF '(' expression ')' statement
+		| IF '(' expression ')' statement ELSE statement
+	'''
+	pass
+
+
+def p_iteration_statement(p):
+	'''
+	iteration_statement : WHILE '(' expression ')' statement
+	'''
+	pass
+
+
+def p_jump_statement(p):
+	'''
+	jump_statement : CONTINUE ';'
+		| BREAK ';'
+		| RETURN ';'
+		| RETURN expression ';'
+	'''
+	pass
+
+
+def p_translation_unit(p):
+	'''
+	translation_unit : external_declaration
+		| translation_unit external_declaration
+	'''
+	pass
+
+
+def p_external_declaration(p):
+	'''
+	external_declaration : function_definition
+		| declaration
+	'''
+	pass
+
+
+def p_function_definition(p):
+	'''
+	function_definition : type_specifier declarator declaration_list compound_statement
+		| type_specifier declarator compound_statement
+	'''
+	pass
 
 
 yacc.yacc()
