@@ -5,7 +5,7 @@ tab_width = 4
 
 data_type_tokens = [
 	'CHAR', 'SHORT', 'INT', 'LONG', 
-	'FLOAT', 'DOUBLE', 'CONST', 'VOID', 
+	'FLOAT', 'DOUBLE', 'VOID', 
 	'STRUCT', 'UNION', 'ENUM',
 ]
 
