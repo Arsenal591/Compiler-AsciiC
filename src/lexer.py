@@ -1,5 +1,6 @@
 from ply import lex as lex
 from ply.lex import TOKEN
+import re
 
 tab_width = 4
 
@@ -49,6 +50,7 @@ constant_patterns = {
 	r'[0-9]+[Ee][+-]?[0-9]+': 'exp',
 	r'[0-9]*\.[0-9]+([Ee][+-]?[0-9]+)?': 'float',
 	r'[0-9]+\.[0-9]*([Ee][+-]?[0-9]+)?': 'float',
+	r"'(\\.|[^\\'])+'": 'char',
 }
 
 t_ignore = ' \t\n\v\f'
@@ -61,7 +63,17 @@ def t_IDENTIFIER(t):
 
 @TOKEN('|'.join(constant_patterns.keys()))
 def t_CONSTANT(t):
-	t.value = float(t.value)
+	pattern = None
+	for key in constant_patterns.keys():
+		if re.match(key, t.value):
+			pattern = key
+			break
+	if constant_patterns[key] != 'char':
+		t.value = float(t.value)
+	else:
+		value = t.value
+		char = bytes(value[1:-1], 'utf-8').decode('unicode_escape')
+		t.value = ord(char)
 	return t
 
 
