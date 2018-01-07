@@ -3,6 +3,11 @@ class BaseNode(object):
     def __init__(self):
         pass
 
+    def traverse(self):
+    	for key in self.__dict__.keys():
+
+    		if isinstance(self.__dict__[key], BaseNode):
+    			self.__dict__[key].traverse()
 
 class ConstantNode(BaseNode):
     def __init__(self, value):
@@ -19,7 +24,7 @@ class StringLiteralNode(BaseNode):
 class IdentifierNode(BaseNode):
     def __init__(self, item):
         self.item = item
-        self.data_type = item.data_type
+        self.data_type = None
 
 
 class ArrayNode(BaseNode):
@@ -62,21 +67,21 @@ class ExpressionListNode(BaseNode):
 
 
 class DeclarationNode(BaseNode):
-	def __init__(self, data_type, init_declatation_list):
+	def __init__(self, data_type, init_declaration_list):
 		self.data_type = data_type
-		self.init_declatation_list = init_declatation_list
+		self.init_declaration_list = init_declaration_list
 
 
-class InitDeclarationListNode(BaseNode):
-    def __init__(self, previous_declarations, next_declaration):
-        self.previous_declarations = previous_declarations
-        self.next_declaration = next_declaration
+class InitDeclaratorListNode(BaseNode):
+    def __init__(self, previous_declarators, next_declarator):
+        self.previous_declarators = previous_declarators
+        self.next_declarator = next_declarator
 
 
 class InitDeclaratorNode(BaseNode):
-    def __init__(self, declarator, intializer):
+    def __init__(self, declarator, initializer):
         self.declarator = declarator
-        self.intializer = intializer
+        self.initializer = initializer
 
 
 class DeclaratorFunctionNode(BaseNode):

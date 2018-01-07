@@ -218,22 +218,22 @@ def p_constant_expression(p):
 
 def p_declaration(p):
     '''
-    declaration :  type_specifier init_declaration_list ';'
+    declaration :  type_specifier init_declarator_list ';'
     '''
 
     p[0] = DeclarationNode(p[1], p[2])
 
 
-def p_init_declaration_list(p):
+def p_init_declarator_list(p):
     '''
-    init_declaration_list : init_declarator
-        | init_declaration_list ',' init_declarator
+    init_declarator_list : init_declarator
+        | init_declarator_list ',' init_declarator
     '''
 
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = InitDeclarationListNode(p[1], p[3])
+        p[0] = InitDeclaratorListNode(p[1], p[3])
 
 
 
@@ -462,7 +462,6 @@ def p_function_definition(p):
     '''
 
     p[0] = FunctionDefinition(p[1], p[2], p[4])
-    print('fuck')
     pass
 
 def p_generate_symbol_table(p):
@@ -487,18 +486,32 @@ log = logging.getLogger()
 parser = yacc.yacc(start='translation_unit', debug=True, debuglog=log)
 
 data = """
-int a[800],b;
-char c, d;
-int e = 5;
 int main(void)
 {
-
-	int a = 2 + 3;
-	char b[1000];
-	b[2] = b[3 + 4] - a;
-	d = f(a, b[5]);
-	return 0;
+	if(a)
+	{
+		while(a > 0)
+		{
+			a = a + 1;
+			b = 3;
+		}
+		if(b == 1)
+			if (a == 2)
+				a = 3;
+			else
+				b = 4;
+		else
+			c = 6;
+		d = 7;
+	}
 }
 """
 
-parser.parse(data, debug=log)
+node = parser.parse(data, debug=log)
+
+while True:
+	txt = input()
+	try:
+		print(eval(txt))
+	except Exception as e:
+		print(str(e))
