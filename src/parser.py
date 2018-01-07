@@ -269,7 +269,7 @@ def p_type_specifier(p):
 
 def p_declarator(p):
     '''
-    declarator : IDENTIFIER
+    declarator : identifier
         | '(' declarator ')'
         | declarator '[' constant_expression ']'
         | declarator '[' ']'
