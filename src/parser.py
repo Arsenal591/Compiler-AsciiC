@@ -219,7 +219,7 @@ def p_init_declaration_list(p):
 def p_init_declarator(p):
     '''
     init_declarator : declarator
-        | declarator '=' initializer
+        | declarator '=' assignment_expression
     '''
     pass
 
@@ -268,26 +268,9 @@ def p_parameter_declaration(p):
     pass
 
 
-def p_initializer(p):
-    '''
-    initializer : assignment_expression
-        | '{' initializer_list '}'
-        | '{' initializer_list ',' '}'
-    '''
-    pass
-
-
-def p_initializer_list(p):
-    '''
-    initializer_list : initializer
-        | initializer_list ',' initializer
-    '''
-    pass
-
-
 def p_statement(p):
     '''
-    statement : compound_statement
+    statement : generate_symbol_table compound_statement pop_symbol_table
         | expression_statement
         | selection_statement
         | iteration_statement
@@ -373,10 +356,20 @@ def p_external_declaration(p):
 
 def p_function_definition(p):
 	'''
-	function_definition : type_specifier declarator compound_statement
+	function_definition : type_specifier declarator generate_symbol_table compound_statement pop_symbol_table
 	'''
 	print('fuck')
 	pass
+
+def p_generate_symbol_table(p):
+	'''
+	generate_symbol_table :
+	'''
+
+def p_pop_symbol_table(p):
+	'''
+	pop_symbol_table : 
+	'''
 
 import logging
 logging.basicConfig(
