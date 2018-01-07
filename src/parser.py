@@ -308,20 +308,20 @@ def p_translation_unit(p):
 
 
 def p_external_declaration(p):
-    '''
-    external_declaration : function_definition
-        | declaration
-    '''
-    pass
+	'''
+	external_declaration : function_definition
+		| declaration
+	'''
+
+	pass
 
 
 def p_function_definition(p):
-    '''
-    function_definition : type_specifier declarator declaration_list compound_statement
-        | type_specifier declarator compound_statement
-    '''
-    print('fuck')
-    pass
+	'''
+	function_definition : type_specifier declarator compound_statement
+	'''
+	print('fuck')
+	pass
 
 import logging
 logging.basicConfig(
@@ -340,10 +340,10 @@ char c, d;
 int e = 5;
 int main(void)
 {
-	b[2] = b[3 + 4] - a;
+
 	int a = 2 + 3;
 	char b[1000];
-	
+	b[2] = b[3 + 4] - a;
 	d = f(a, b[5]);
 	return 0;
 }
