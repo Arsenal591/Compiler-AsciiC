@@ -104,3 +104,9 @@ src/parsetab.py
 
 # IDEA PyCharm
 .idea/
+
+# VS Code
+.vscode/
+
+# parselog
+parselog.txt
