@@ -67,9 +67,9 @@ class ExpressionListNode(BaseNode):
 
 
 class DeclarationNode(BaseNode):
-	def __init__(self, data_type, init_declaration_list):
+	def __init__(self, data_type, init_declarator_list):
 		self.data_type = data_type
-		self.init_declaration_list = init_declaration_list
+		self.init_declarator_list = init_declarator_list
 
 
 class InitDeclaratorListNode(BaseNode):
