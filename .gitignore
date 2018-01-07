@@ -102,3 +102,5 @@ ENV/
 *.out
 src/parsetab.py
 src/parselog.txt
+# IDEA PyCharm
+.idea/

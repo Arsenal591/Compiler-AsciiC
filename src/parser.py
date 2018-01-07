@@ -309,6 +309,7 @@ def p_external_declaration(p):
 	external_declaration : function_definition
 		| declaration
 	'''
+
 	pass
 
 
