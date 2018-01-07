@@ -215,7 +215,7 @@ def p_parameter_declaration(p):
 
 def p_statement(p):
     '''
-    statement : compound_statement
+    statement : generate_symbol_table compound_statement pop_symbol_table
         | expression_statement
         | selection_statement
         | iteration_statement
@@ -301,10 +301,20 @@ def p_external_declaration(p):
 
 def p_function_definition(p):
 	'''
-	function_definition : type_specifier declarator compound_statement
+	function_definition : type_specifier declarator generate_symbol_table compound_statement pop_symbol_table
 	'''
 	print('fuck')
 	pass
+
+def p_generate_symbol_table(p):
+	'''
+	generate_symbol_table :
+	'''
+
+def p_pop_symbol_table(p):
+	'''
+	pop_symbol_table : 
+	'''
 
 import logging
 logging.basicConfig(
