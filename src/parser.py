@@ -27,7 +27,7 @@ def p_identifier(p):
 
 def p_constant(p):
     '''
-    constant: CONSTANT
+    constant : CONSTANT
 
     '''
 
@@ -36,7 +36,7 @@ def p_constant(p):
 
 def p_string_literal(p):
     '''
-    string_literal: STRING_LITERAL
+    string_literal : STRING_LITERAL
 
     '''
 
@@ -351,7 +351,7 @@ def p_compound_statement(p):
 
 def p_compound_declaration_only(p):
     '''
-    compound_declaration_only: '{' declaration_list '}'
+    compound_declaration_only : '{' declaration_list '}'
     '''
 
     p[0] = CompoundStatementNode(p[2], None)
@@ -359,7 +359,7 @@ def p_compound_declaration_only(p):
 
 def p_compound_statement_only(p):
     '''
-    compound_statement_only: '{' statement_list '}'
+    compound_statement_only : '{' statement_list '}'
     '''
 
     p[0] = CompoundStatementNode(None, p[2])
