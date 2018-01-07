@@ -87,7 +87,6 @@ def p_unary_operator(p):
 	unary_operator : INC_OP 
 		| DEC_OP 
 		| '&' 
-		| '*' 
 		| '+' 
 		| '-' 
 		| '~' 
@@ -146,8 +145,7 @@ def p_constant_expression(p):
 
 def p_declaration(p):
 	'''
-	declaration : type_specifier ';'
-		| type_specifier init_declaration_list ';'
+	declaration :  type_specifier init_declaration_list ';'
 	'''
 	pass
 
@@ -186,28 +184,12 @@ def p_type_specifier(p):
 
 def p_declarator(p):
 	'''
-	declarator : pointer direct_declarator
-		| direct_declarator
-	'''
-	pass
-
-
-def p_pointer(p):
-	'''
-	pointer : '*'
-		| '*' pointer
-	'''
-	pass
-
-
-def p_direct_declarator(p):
-	'''
-	direct_declarator : IDENTIFIER
+	declarator : IDENTIFIER
 		| '(' declarator ')'
-		| direct_declarator '[' constant_expression ']'
-		| direct_declarator '[' ']'
-		| direct_declarator '(' parameter_type_list ')'
-		| direct_declarator '(' ')'
+		| declarator '[' constant_expression ']'
+		| declarator '[' ']'
+		| declarator '(' parameter_type_list ')'
+		| declarator '(' ')'
 	'''
 	pass
 
