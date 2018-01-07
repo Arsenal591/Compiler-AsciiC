@@ -95,7 +95,7 @@ def p_argument_expression_list(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = ArgumentListNode(p[1], p[2])
+        p[0] = ArgumentListNode(p[1], p[3])
 
 
 def p_assignment_operator(p):
