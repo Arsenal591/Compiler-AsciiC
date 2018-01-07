@@ -46,7 +46,7 @@ class ArgumentListNode(BaseNode):
 
 
 class ExpressionNode(BaseNode):
-    def __init__(self, op1, op2, operator):
+    def __init__(self, op1, operator, op2):
         self.op1 = op1
         self.op2 = op2
         self.operator = operator
@@ -111,7 +111,7 @@ class CompoundStatementNode(BaseNode):
 class DeclarationListNode(BaseNode):
 	def __init__(self, previous_declarations, next_declaration):
 		self.previous_declarations = previous_declarations
-		self.next_declaration = next_declarationE
+		self.next_declaration = next_declaration
 
 
 class StatementListNode(BaseNode):

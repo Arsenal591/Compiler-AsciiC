@@ -1,5 +1,6 @@
 from ply import yacc
 from lexer import tokens
+from ast_node import *
 
 precedence = (
     ('left', 'OR_OP'),
@@ -14,20 +15,46 @@ precedence = (
     ('left', '*', '/', '%'),
 )
 
+def p_identifier(p):
+    '''
+    identifier : IDENTIFIER
+
+    '''
+
+    p[0] = IdentifierNode(p[1])
+
+
+def p_constant(p):
+    '''
+    constant: CONSTANT
+
+    '''
+
+    p[0] = ConstantNode(p[1])
+
+
+def p_string_literal(p):
+    '''
+    string_literal: STRING_LITERAL
+
+    '''
+
+    p[0] = StringLiteralNode(p[1])
+
 
 def p_primary_expression(p):
     '''
-    primary_expression : IDENTIFIER
-        | CONSTANT
-        | STRING_LITERAL
+    primary_expression : identifier
+        | constant
+        | string_literal
         | '(' expression ')'
 
     '''
-    pass
-    # if (len(p) == 4) :
-    #     p[0] = p[2]
-    # elif (len(p) == 2):
-    #     print(p[1])
+
+    if len(p) == 4:
+        p[0] = p[2]
+    else:
+        p[0] = p[1]
 
 
 def p_postfix_expression(p):
@@ -41,7 +68,21 @@ def p_postfix_expression(p):
         | postfix_expression INC_OP
         | postfix_expression DEC_OP
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 3:
+        p[0] = ExpressionNode(p[1], p[2], None)
+    elif len(p) == 4:
+        if p[2] == '(':
+            p[0] = FunctionCallNode(p[1], None)
+        else:
+            p[0] = ExpressionNode(p[1], p[2], p[3])
+    else:
+        if p[2] == '(':
+            p[0] = FunctionCallNode(p[1], p[3])
+        else:
+            p[0] = ArrayNode(p[1], p[3])
 
 
 def p_argument_expression_list(p):
@@ -49,7 +90,11 @@ def p_argument_expression_list(p):
     argument_expression_list : assignment_expression
         | argument_expression_list ',' assignment_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ArgumentListNode(p[1], p[2])
 
 
 def p_assignment_operator(p):
@@ -66,7 +111,8 @@ def p_assignment_operator(p):
         | XOR_ASSIGN
         | OR_ASSIGN
     '''
-    pass
+
+    p[0] = p[1]
 
 
 def p_assignment_expression(p):
@@ -74,7 +120,11 @@ def p_assignment_expression(p):
     assignment_expression : conditional_expression
         | postfix_expression assignment_operator assignment_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ExpressionNode(p[1], p[2], p[3])
 
 
 def p_conditional_expression(p):
@@ -82,7 +132,12 @@ def p_conditional_expression(p):
     conditional_expression : binary_expression
         | binary_expression '?' expression ':' conditional_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        # TODO: ternary expression
+        pass
 
 
 def p_unary_operator(p):
