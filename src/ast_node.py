@@ -61,13 +61,19 @@ class ExpressionListNode(BaseNode):
         self.next_expr = next_expr
 
 
+class DeclarationNode(BaseNode):
+	def __init__(self, data_type, init_declatation_list):
+		self.data_type = data_type
+		self.init_declatation_list = init_declatation_list
+
+
 class InitDeclarationListNode(BaseNode):
     def __init__(self, previous_declarations, next_declaration):
         self.previous_declarations = previous_declarations
         self.next_declaration = next_declaration
 
 
-class InitDeclarationNode(BaseNode):
+class InitDeclaratorNode(BaseNode):
     def __init__(self, declarator, intializer):
         self.declarator = declarator
         self.intializer = intializer
