@@ -221,8 +221,7 @@ def p_declaration(p):
     declaration :  type_specifier init_declaration_list ';'
     '''
 
-    # TODO: declaration node
-    pass
+    p[0] = DeclarationNode(p[1], p[2])
 
 
 def p_init_declaration_list(p):
@@ -278,12 +277,20 @@ def p_declarator(p):
         | declarator '(' ')'
     '''
 
-    # TODO:
     if len(p) == 2:
         p[0] = p[1]
     elif len(p) == 4:
         if p[1] == '(':
             p[0] = p[2]
+        elif p[2] == '[':
+            p[0] = DeclaratorArrayNode(p[1], None)
+        elif p[2] == '(':
+            p[0] = DeclaratorFunctionNode(p[1], None)
+    else:
+        if p[2] == '[':
+            p[0] = DeclaratorArrayNode(p[1], p[3])
+        elif p[2] == '(':
+            p[0] = DeclaratorFunctionNode(p[1], p[3])
 
 
 
@@ -329,14 +336,34 @@ def p_statement(p):
 def p_compound_statement(p):
     '''
     compound_statement : '{' '}'
-        | '{' statement_list '}'
-        | '{' declaration_list '}'
+        | compound_statement_only
+        | compound_declaration_only
         | '{' declaration_list statement_list '}'
     '''
 
-    if p[2] == '}':
+    if len(p) == 2:
+        p[0] = p[1]
+    elif p[2] == '}':
         p[0] = CompoundStatementNode(None, None)
-    # TODO:
+    else:
+        p[0] = CompoundStatementNode(p[2], p[3])
+
+
+def p_compound_declaration_only(p):
+    '''
+    compound_declaration_only: '{' declaration_list '}'
+    '''
+
+    p[0] = CompoundStatementNode(p[2], None)
+
+
+def p_compound_statement_only(p):
+    '''
+    compound_statement_only: '{' statement_list '}'
+    '''
+
+    p[0] = CompoundStatementNode(None, p[2])
+
 
 
 def p_declaration_list(p):
