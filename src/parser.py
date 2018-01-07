@@ -164,7 +164,7 @@ def p_init_declaration_list(p):
 def p_init_declarator(p):
     '''
     init_declarator : declarator
-        | declarator '=' initializer
+        | declarator '=' assignment_expression
     '''
     pass
 
@@ -209,23 +209,6 @@ def p_parameter_declaration(p):
     '''
     parameter_declaration : type_specifier declarator
         | type_specifier
-    '''
-    pass
-
-
-def p_initializer(p):
-    '''
-    initializer : assignment_expression
-        | '{' initializer_list '}'
-        | '{' initializer_list ',' '}'
-    '''
-    pass
-
-
-def p_initializer_list(p):
-    '''
-    initializer_list : initializer
-        | initializer_list ',' initializer
     '''
     pass
 
