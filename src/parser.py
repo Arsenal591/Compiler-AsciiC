@@ -21,6 +21,7 @@ def p_identifier(p):
 
     '''
 
+    # TODO: symbol table
     p[0] = IdentifierNode(p[1])
 
 
@@ -150,7 +151,8 @@ def p_unary_operator(p):
         | '~'
         | '!'
     '''
-    pass
+
+    p[0] = p[1]
 
 
 def p_unary_expression(p):
@@ -158,7 +160,11 @@ def p_unary_expression(p):
     unary_expression : postfix_expression
         | unary_operator unary_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ExpressionNode(None, p[1], p[2])
 
 
 def p_binary_expression(p):
@@ -183,7 +189,11 @@ def p_binary_expression(p):
         | binary_expression '/' binary_expression
         | binary_expression '%' binary_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ExpressionNode(p[1], p[2], p[3])
 
 
 def p_expression(p):
@@ -191,20 +201,27 @@ def p_expression(p):
     expression : assignment_expression
         | expression ',' assignment_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ExpressionNode(p[1], p[2], p[3])
 
 
 def p_constant_expression(p):
     '''
     constant_expression : conditional_expression
     '''
-    pass
+
+    p[0] = p[1]
 
 
 def p_declaration(p):
     '''
     declaration :  type_specifier init_declaration_list ';'
     '''
+
+    # TODO: declaration node
     pass
 
 
@@ -213,7 +230,12 @@ def p_init_declaration_list(p):
     init_declaration_list : init_declarator
         | init_declaration_list ',' init_declarator
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = InitDeclarationListNode(p[1], p[3])
+
 
 
 def p_init_declarator(p):
@@ -221,7 +243,12 @@ def p_init_declarator(p):
     init_declarator : declarator
         | declarator '=' assignment_expression
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = InitDeclaratorNode(p[1], p[3])
+
 
 
 #  struct_or_union_specifier
@@ -237,7 +264,8 @@ def p_type_specifier(p):
         | DOUBLE
         | IDENTIFIER
     '''
-    pass
+
+    p[0] = p[1]
 
 
 def p_declarator(p):
@@ -249,7 +277,14 @@ def p_declarator(p):
         | declarator '(' parameter_type_list ')'
         | declarator '(' ')'
     '''
-    pass
+
+    # TODO:
+    if len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 4:
+        if p[1] == '(':
+            p[0] = p[2]
+
 
 
 def p_parameter_type_list(p):
@@ -257,7 +292,11 @@ def p_parameter_type_list(p):
     parameter_type_list : parameter_declaration
         | parameter_type_list ',' parameter_declaration
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = ParameterTypeListNode(p[1], p[3])
 
 
 def p_parameter_declaration(p):
@@ -265,7 +304,11 @@ def p_parameter_declaration(p):
     parameter_declaration : type_specifier declarator
         | type_specifier
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = ParameterDeclarationNode(p[1], None)
+    else:
+        p[0] = ParameterDeclarationNode(p[1], p[2])
 
 
 def p_statement(p):
@@ -276,7 +319,11 @@ def p_statement(p):
         | iteration_statement
         | jump_statement
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = p[2]
 
 
 def p_compound_statement(p):
@@ -286,7 +333,10 @@ def p_compound_statement(p):
         | '{' declaration_list '}'
         | '{' declaration_list statement_list '}'
     '''
-    pass
+
+    if p[2] == '}':
+        p[0] = CompoundStatementNode(None, None)
+    # TODO:
 
 
 def p_declaration_list(p):
@@ -294,15 +344,22 @@ def p_declaration_list(p):
     declaration_list : declaration
         | declaration_list declaration
     '''
-    pass
 
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = DeclarationListNode(p[1], p[2])
 
 def p_statement_list(p):
     '''
     statement_list : statement
         | statement_list statement
     '''
-    pass
+
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = StatementListNode(p[1], p[2])
 
 
 def p_expression_statement(p):
@@ -310,7 +367,11 @@ def p_expression_statement(p):
     expression_statement : ';'
         | expression ';'
     '''
-    pass
+
+    if p[1] == ';':
+        p[0] = ExpressionStatementNode(None)
+    else:
+        p[0] = ExpressionStatementNode(p[1])
 
 
 def p_selection_statement(p):
@@ -318,14 +379,19 @@ def p_selection_statement(p):
     selection_statement : IF '(' expression ')' statement
         | IF '(' expression ')' statement ELSE statement
     '''
-    pass
+
+    if len(p) == 6:
+        p[0] = SelectionStatementNode(p[3], p[5], None)
+    else:
+        p[0] = SelectionStatementNode(p[3], p[5], p[7])
 
 
 def p_iteration_statement(p):
     '''
     iteration_statement : WHILE '(' expression ')' statement
     '''
-    pass
+
+    p[0] = IterationStatementNode(p[3], p[5])
 
 
 def p_jump_statement(p):
@@ -335,7 +401,11 @@ def p_jump_statement(p):
         | RETURN ';'
         | RETURN expression ';'
     '''
-    pass
+
+    if len(p) == 3:
+        p[0] = JumpStatementNode(p[1], None)
+    else:
+        p[0] = JumpStatementNode(p[1], p[2])
 
 
 def p_translation_unit(p):
@@ -344,32 +414,39 @@ def p_translation_unit(p):
         | translation_unit external_declaration
     '''
 
+    if len(p) == 2:
+        p[0] = p[1]
+    else:
+        p[0] = TranslationUnitNode(p[1], p[2])
+
 
 def p_external_declaration(p):
-	'''
+    '''
 	external_declaration : function_definition
 		| declaration
 	'''
 
-	pass
+    p[0] = p[1]
 
 
 def p_function_definition(p):
-	'''
-	function_definition : type_specifier declarator generate_symbol_table compound_statement pop_symbol_table
-	'''
-	print('fuck')
-	pass
+    '''
+    function_definition : type_specifier declarator generate_symbol_table compound_statement pop_symbol_table
+    '''
+
+    p[0] = FunctionDefinition(p[1], p[2], p[4])
+    print('fuck')
+    pass
 
 def p_generate_symbol_table(p):
-	'''
-	generate_symbol_table :
-	'''
+    '''
+    generate_symbol_table :
+    '''
 
 def p_pop_symbol_table(p):
-	'''
-	pop_symbol_table : 
-	'''
+    '''
+    pop_symbol_table : 
+    '''
 
 import logging
 logging.basicConfig(

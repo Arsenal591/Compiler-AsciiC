@@ -67,7 +67,7 @@ class InitDeclarationListNode(BaseNode):
         self.next_declaration = next_declaration
 
 
-class InitDeclarationNode(BaseNode):
+class InitDeclaratorNode(BaseNode):
     def __init__(self, declarator, intializer):
         self.declarator = declarator
         self.intializer = intializer
@@ -85,7 +85,7 @@ class ParameterTypeListNode(BaseNode):
         self.next_declaration = next_declaration
 
 
-class ParameterDeclarationListNode(BaseNode):
+class ParameterDeclarationNode(BaseNode):
 	def __init__(self, type_specifier, declarator):
 		self.type_specifier = type_specifier
 		self.declarator = declarator
