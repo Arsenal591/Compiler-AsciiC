@@ -3,15 +3,20 @@ class SymbolTable(object):
 	def __init__(self):
 		self.items = {}
 
-	def insert(name, actual_name, data_type, bias=None):
-		new_item = (actual_name, data_type, bias)
+	def insert(self, name, actual_name, data_type, array_size=None):
+		new_item = {
+			'actual_name': actual_name,
+			'data_type': data_type,
+			'array_size': array_size,
+		}
 		self.items[name] = new_item
+		return new_item
 
-	def get_item(name):
-		return getattr(self.items, name, None)
+	def get_item(self, name):
+		return self.items.get(name)
 
 
-class SymbolTableChain(self):
+class SymbolTableChain(object):
 	def __init__(self):
 		self.depth = 0
 		self.tables = list()
@@ -31,9 +36,13 @@ class SymbolTableChain(self):
 			raise ValueError('Scope depth cannot be negative.')
 		self.tables.pop()
 
-	def insert(name, data_type, bias=None):
-		actual_name = "chain_%d_%s" % (self.depth, self.name) 
-		self.current_table.insert(name, actual_name, data_type, bias)
+	def insert(self, name, data_type, array_size=None):
+		#actual_name = "chain_%d_%s" % (self.depth, self.name) 
+		actual_name = name
+		if array_size is None:
+			array_size = list()
+		return self.current_table.insert(name, actual_name, data_type, array_size)
 
-	def get_item(name):
+	def get_item(self, name):
 		return self.current_table.get_item(name)
+		
