@@ -177,7 +177,7 @@ class InitDeclaratorListNode(BaseNode):
 	def add_into_table(self, data_type, table):
 		pos = self
 		while isinstance(pos, InitDeclaratorListNode):
-			self.next_declarator.add_into_table(data_type, table)
+			pos.next_declarator.add_into_table(data_type, table)
 			pos = pos.previous_declarators
 		pos.add_into_table(data_type, table)
 
