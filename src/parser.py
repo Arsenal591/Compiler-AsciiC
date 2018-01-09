@@ -1,6 +1,9 @@
 from ply import yacc
 from lexer import tokens
 from ast_node import *
+from symbols import *
+
+symbol_table_chain = SymbolTableChain()
 
 precedence = (
     ('left', 'OR_OP'),
@@ -468,6 +471,23 @@ def p_generate_symbol_table(p):
     '''
     generate_symbol_table :
     '''
+    symbol_table_chain.push_chain()
+    # if it is next to a function definition
+    if isinstance(p[-1], DeclaratorFunctionNode):
+    	if p[-1].param_type_list is None:
+    		pass
+    	elif isinstance(p[-1].param_type_list, ParameterDeclarationNode):
+    		p[-1].param_type_list.add_into_table(symbol_table_chain)
+    	elif isinstance(p[-1].param_type_list, ParameterTypeListNode):
+    		pos = p[-1].param_type_list
+    		while isinstance(pos, ParameterTypeListNode):
+    			pos.next_declaration.add_into_table(symbol_table_chain)
+    			pos = pos.previous_declarations
+    		pos.add_into_table(symbol_table_chain)
+    	else:
+    		raise TypeError()
+
+    	pass
 
 def p_pop_symbol_table(p):
     '''

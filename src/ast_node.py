@@ -178,6 +178,16 @@ class ParameterDeclarationNode(BaseNode):
 		self.data_type = data_type
 		self.declarator = declarator
 
+	def add_into_table(self, table):
+		pos = self.declarator
+		array_size = list()
+		while isinstance(pos, DeclaratorArrayNode):
+			array_size.append(pos.constant_expression.value)
+			pos = pos.declarator
+		array_size.reverse()
+		name = pos.item
+		pos.item = table.insert(name, self.data_type, array_size)
+
 
 class InitializerNode(BaseNode):
 	def __init__(self, initializer_list):
