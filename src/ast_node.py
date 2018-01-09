@@ -153,6 +153,12 @@ class DeclarationNode(BaseNode):
 	def add_into_table(self, table):
 		self.init_declarator_list.add_into_table(self.data_type, table)
 
+class DeclarationListNode(BaseNode):
+	def __init__(self, previous_declarations, next_declaration):
+		self.previous_declarations = previous_declarations
+		self.next_declaration = next_declaration
+
+
 class InitDeclaratorListNode(BaseNode):
 	def __init__(self, previous_declarators, next_declarator):
 		self.previous_declarators = previous_declarators
@@ -267,11 +273,6 @@ class CompoundStatementNode(BaseNode):
 		self.declaration_list = declaration_list
 		self.statement_list = statement_list
 
-
-class DeclarationListNode(BaseNode):
-	def __init__(self, previous_declarations, next_declaration):
-		self.previous_declarations = previous_declarations
-		self.next_declaration = next_declaration
 
 
 class StatementListNode(BaseNode):
