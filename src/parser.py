@@ -247,7 +247,7 @@ def p_init_declarator(p):
     '''
 
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = InitDeclaratorNode(p[1], None)
     else:
         p[0] = InitDeclaratorNode(p[1], p[3])
 
