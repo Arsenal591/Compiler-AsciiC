@@ -150,10 +150,21 @@ class DeclarationNode(BaseNode):
 		self.init_declarator_list = init_declarator_list
 
 
+	def add_into_table(self, table):
+		self.init_declarator_list.add_into_table(self.data_type, table)
+
 class InitDeclaratorListNode(BaseNode):
 	def __init__(self, previous_declarators, next_declarator):
 		self.previous_declarators = previous_declarators
 		self.next_declarator = next_declarator
+
+
+	def add_into_table(self, data_type, table):
+		pos = self
+		while isinstance(pos, InitDeclaratorListNode):
+			self.next_declarator.add_into_table(data_type, table)
+			pos = pos.previous_declarators
+		pos.add_into_table(data_type, table)
 
 
 class InitDeclaratorNode(BaseNode):
@@ -162,6 +173,15 @@ class InitDeclaratorNode(BaseNode):
 		self.initializer = initializer
 
 
+	def add_into_table(self, data_type, table):
+		pos = self.declarator
+		array_size = list()
+		while isinstance(pos, DeclaratorArrayNode):
+			array_size.append(pos.constant_expression.value)
+			pos = pos.declarator
+		array_size.reverse()
+		name = pos.item
+		pos.item = table.insert(name, data_type, array_size)
 class DeclaratorFunctionNode(BaseNode):
 	def __init__(self, declarator, param_type_list):
 		self.declarator = declarator
