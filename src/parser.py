@@ -225,6 +225,7 @@ def p_declaration(p):
     '''
 
     p[0] = DeclarationNode(p[1], p[2])
+    p[0].add_into_table(symbol_table_chain)
 
 
 def p_init_declarator_list(p):
@@ -498,7 +499,7 @@ def p_pop_symbol_table(p):
     '''
     pop_symbol_table : 
     '''
-    symbol_table_chain.pop_chain()
+    #symbol_table_chain.pop_chain()
 
 
 import logging
@@ -513,19 +514,17 @@ log = logging.getLogger()
 parser = yacc.yacc(start='translation_unit', debug=True, debuglog=log)
 
 data = """
-int foo(int x, int y)
+int foo(int x[5][9], int y)
 {
+	int m, n = 7, q = 12;
+	char ee[122];
 }
 """
 
 node = parser.parse(data, debug=log)
 node.generate_code()
+#print(node.statements.declaration_list.init_declarator_list.declarator.item)
 #print(symbol_table_chain.get_item('x'))
+print(symbol_table_chain.current_table.items)
 exit(0)
 
-while True:
-	txt = input()
-	try:
-		print(eval(txt))
-	except Exception as e:
-		print(str(e))
