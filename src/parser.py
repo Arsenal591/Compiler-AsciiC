@@ -465,7 +465,7 @@ def p_function_definition(p):
     '''
 
     p[0] = FunctionDefinition(p[1], p[2], p[4])
-    pass
+    
 
 def p_generate_symbol_table(p):
     '''
@@ -488,11 +488,18 @@ def p_generate_symbol_table(p):
     		raise TypeError()
 
     	pass
+    #print(p[-1].param_type_list.declarator.constant_expression.value)
+
+    #if p[-1]
+    #print(p[-1])
+
 
 def p_pop_symbol_table(p):
     '''
     pop_symbol_table : 
     '''
+    symbol_table_chain.pop_chain()
+
 
 import logging
 logging.basicConfig(
@@ -506,28 +513,15 @@ log = logging.getLogger()
 parser = yacc.yacc(start='translation_unit', debug=True, debuglog=log)
 
 data = """
-int main(void)
+int foo(int x, int y)
 {
-	if(a)
-	{
-		while(a > 0)
-		{
-			a = a + 1;
-			b = 3;
-		}
-		if(b == 1)
-			if (a == 2)
-				a = 3;
-			else
-				b = 4;
-		else
-			c = 6;
-		d = 7;
-	}
 }
 """
 
 node = parser.parse(data, debug=log)
+node.generate_code()
+#print(symbol_table_chain.get_item('x'))
+exit(0)
 
 while True:
 	txt = input()
