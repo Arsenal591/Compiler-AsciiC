@@ -1,4 +1,9 @@
 
+indent = 0
+
+def print_code(*args):
+	print(*args, end='')
+
 class BaseNode(object):
 	def __init__(self):
 		pass
@@ -10,7 +15,6 @@ class BaseNode(object):
 				self.__dict__[key].traverse()
 
 	def generate_code(self):
-		print("")
 		return None
 
 
@@ -18,6 +22,9 @@ class ConstantNode(BaseNode):
 	def __init__(self, value):
 		self.value = value
 		self.data_type = 'float'
+
+	def generate_code(self):
+		print(self.value, end='')
 
 
 class StringLiteralNode(BaseNode):
@@ -127,7 +134,7 @@ class ExpressionNode(BaseNode):
 		else:
 			if op1.value is not None and op2.value is not None:
 				self.value = self.cal_binary_expression(op1.value, operator, op2.value)
-		print(self.value)
+		#print(self.value)
 
 
 
@@ -159,6 +166,17 @@ class DeclaratorFunctionNode(BaseNode):
 	def __init__(self, declarator, param_type_list):
 		self.declarator = declarator
 		self.param_type_list = param_type_list
+
+	def generate_code(self):
+		global indent
+		print_code(self.declarator.item)
+		print_code("(")
+
+		if self.param_type_list is not None:
+			self.param_type_list.generate_code()
+
+		print_code(")")
+
 		
 
 class DeclaratorArrayNode(BaseNode):
@@ -173,10 +191,17 @@ class ParameterTypeListNode(BaseNode):
 		self.next_declaration = next_declaration
 
 
+	def generate_code(self):
+		self.previous_declarations.generate_code()
+		print_code(", ")
+		self.next_declaration.generate_code()
+
+
 class ParameterDeclarationNode(BaseNode):
 	def __init__(self, data_type, declarator):
 		self.data_type = data_type
 		self.declarator = declarator
+
 
 	def add_into_table(self, table):
 		pos = self.declarator
@@ -187,6 +212,13 @@ class ParameterDeclarationNode(BaseNode):
 		array_size.reverse()
 		name = pos.item
 		pos.item = table.insert(name, self.data_type, array_size)
+
+
+	def generate_code(self):
+		pos = self.declarator
+		while isinstance(pos, DeclaratorArrayNode):
+			pos = pos.declarator
+		print_code(pos.item['actual_name'])
 
 
 class InitializerNode(BaseNode):
@@ -253,3 +285,13 @@ class FunctionDefinition(BaseNode):
 		self.return_type = return_type
 		self.declarator = declarator
 		self.statements = statements
+
+	def generate_code(self):
+		global indent
+		print_code("def ")
+		self.declarator.generate_code()
+		print_code(":\n")
+		indent += 4
+		self.statements.generate_code()
+		print_code("\n")
+		indent -= 4
