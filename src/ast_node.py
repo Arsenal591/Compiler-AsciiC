@@ -204,6 +204,16 @@ class DeclaratorArrayNode(BaseNode):
 		self.declarator = declarator
 		self.constant_expression = constant_expression
 
+	@property
+	def array_meta(self):
+		pos = self
+		array_size = list()
+		while isinstance(pos, DeclaratorArrayNode):
+			array_size.append(pos.constant_expression.value)
+			pos = pos.declarator
+		array_size.reverse()
+		return (pos.item, array_size)
+
 
 class ParameterTypeListNode(BaseNode):
 	def __init__(self, previous_declarations, next_declaration):
