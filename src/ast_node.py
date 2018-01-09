@@ -1,69 +1,140 @@
 
 class BaseNode(object):
-    def __init__(self):
-        pass
+	def __init__(self):
+		pass
 
-    def traverse(self):
-    	for key in self.__dict__.keys():
+	def traverse(self):
+		for key in self.__dict__.keys():
 
-    		if isinstance(self.__dict__[key], BaseNode):
-    			self.__dict__[key].traverse()
+			if isinstance(self.__dict__[key], BaseNode):
+				self.__dict__[key].traverse()
+
+	def generate_code(self):
+		print("")
+		return None
+
 
 class ConstantNode(BaseNode):
-    def __init__(self, value):
-        self.value = value
-        self.data_type = 'float'
+	def __init__(self, value):
+		self.value = value
+		self.data_type = 'float'
 
 
 class StringLiteralNode(BaseNode):
-    def __init__(self, value):
-        self.value = value
-        self.data_type = 'str'
+	def __init__(self, value):
+		self.value = value
+		self.data_type = 'str'
 
 
 class IdentifierNode(BaseNode):
-    def __init__(self, item):
-        self.item = item
-        self.data_type = None
+	def __init__(self, item):
+		self.value = None
+		self.item = item
+		self.data_type = None
 
 
 class ArrayNode(BaseNode):
-    def __init__(self, item, bias):
-        self.item = item.item
-        self.data_type = item.data_type
-        if isinstance(item, IdentifierNode):
-            self.bias = bias
-        else:
-            # TODO
-            pass
+	def __init__(self, item, bias):
+		self.item = item.item
+		self.data_type = item.data_type
+		if isinstance(item, IdentifierNode):
+			self.bias = bias
+		else:
+			# TODO
+			pass
 
 
 class FunctionCallNode(BaseNode):
-    def __init__(self, func, argument_list):
-        self.func = func
-        self.argument_list = argument_list
+	def __init__(self, func, argument_list):
+		self.func = func
+		self.argument_list = argument_list
 
 
 class ArgumentListNode(BaseNode):
-    def __init__(self, previous_args, next_arg):
-        self.previous_args = previous_args
-        self.next_arg = next_arg
+	def __init__(self, previous_args, next_arg):
+		self.previous_args = previous_args
+		self.next_arg = next_arg
 
 
 class ExpressionNode(BaseNode):
-    def __init__(self, op1, operator, op2):
-        self.op1 = op1
-        self.op2 = op2
-        self.operator = operator
 
-        # TODO: type checking
-        self.data_type = op1.data_type
+	@classmethod
+	def cal_unary_expression(cls, op, operator):
+		if operator == '+':
+			return op
+		elif operator == '-':
+			return -op
+		elif operator == '!':
+			return (not op)
+		else:
+			raise NotImplementedError('Unary operator %s is not implemented.' % operator)
+		
+	@classmethod
+	def cal_binary_expression(cls, op1, operator, op2):
+		if operator == '||':
+			return int(op1 or op2)
+		elif operator == '&&':
+			return int(op1 and op2)
+		elif operator == '|':
+			return op1 | op2
+		elif operator == '^':
+			return op1 ^ op2
+		elif operator == '&':
+			return op1 & op2
+		elif operator == '==':
+			return int(op1 == op2)
+		elif operator == '!=':
+			return int(op1 != op2)
+		elif operator == '<':
+			return int(op1 < op2)
+		elif operator == '>':
+			return int(op1 > op2)
+		elif operator == '<=':
+			return int(op1 <= op2)
+		elif operator == '>=':
+			return int(op1 >= op2)
+		elif operator == '<<':
+			return op1 << op2
+		elif operator == '>>':
+			return op1 >> op2
+		elif operator == '+':
+			return op1 + op2
+		elif operator == '-':
+			return op1 - op2
+		elif operator == '*':
+			return op1 * op2
+		elif operator == '/':
+			# TODO: type checking
+			return op1 / op2
+		elif operator == '%':
+			return op1 % op2
+
+
+	def __init__(self, op1, operator, op2):
+		self.op1 = op1
+		self.op2 = op2
+		self.operator = operator
+
+		# TODO: type checking
+		self.data_type = op1.data_type
+
+		# TODO: type checking
+		self.value = None
+		if op2 is None:
+			if op1.value is not None:
+				self.value = self.cal_unary_expression(op1.value, operator)
+
+		else:
+			if op1.value is not None and op2.value is not None:
+				self.value = self.cal_binary_expression(op1.value, operator, op2.value)
+		print(self.value)
+
 
 
 class ExpressionListNode(BaseNode):
-    def __init__(self, previous_exprs, next_expr):
-        self.previous_exprs = previous_exprs
-        self.next_expr = next_expr
+	def __init__(self, previous_exprs, next_expr):
+		self.previous_exprs = previous_exprs
+		self.next_expr = next_expr
 
 
 class DeclarationNode(BaseNode):
@@ -73,33 +144,33 @@ class DeclarationNode(BaseNode):
 
 
 class InitDeclaratorListNode(BaseNode):
-    def __init__(self, previous_declarators, next_declarator):
-        self.previous_declarators = previous_declarators
-        self.next_declarator = next_declarator
+	def __init__(self, previous_declarators, next_declarator):
+		self.previous_declarators = previous_declarators
+		self.next_declarator = next_declarator
 
 
 class InitDeclaratorNode(BaseNode):
-    def __init__(self, declarator, initializer):
-        self.declarator = declarator
-        self.initializer = initializer
+	def __init__(self, declarator, initializer):
+		self.declarator = declarator
+		self.initializer = initializer
 
 
 class DeclaratorFunctionNode(BaseNode):
-    def __init__(self, declarator, param_type_list):
-        self.declarator = declarator
-        self.param_type_list = param_type_list
-        
+	def __init__(self, declarator, param_type_list):
+		self.declarator = declarator
+		self.param_type_list = param_type_list
+		
 
 class DeclaratorArrayNode(BaseNode):
-    def __init__(self, declarator, constant_expression):
-        self.declarator = declarator
-        self.constant_expression = constant_expression
+	def __init__(self, declarator, constant_expression):
+		self.declarator = declarator
+		self.constant_expression = constant_expression
 
 
 class ParameterTypeListNode(BaseNode):
-    def __init__(self, previous_declarations, next_declaration):
-        self.previous_declarations = previous_declarations
-        self.next_declaration = next_declaration
+	def __init__(self, previous_declarations, next_declaration):
+		self.previous_declarations = previous_declarations
+		self.next_declaration = next_declaration
 
 
 class ParameterDeclarationNode(BaseNode):
