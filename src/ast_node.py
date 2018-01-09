@@ -153,10 +153,19 @@ class DeclarationNode(BaseNode):
 	def add_into_table(self, table):
 		self.init_declarator_list.add_into_table(self.data_type, table)
 
+
+	def generate_code(self):
+		self.init_declarator_list.generate_code()
+
+
 class DeclarationListNode(BaseNode):
 	def __init__(self, previous_declarations, next_declaration):
 		self.previous_declarations = previous_declarations
 		self.next_declaration = next_declaration
+
+	def generate_code(self):
+		self.previous_declarations.generate_code()
+		self.next_declaration.generate_code()
 
 
 class InitDeclaratorListNode(BaseNode):
@@ -171,6 +180,11 @@ class InitDeclaratorListNode(BaseNode):
 			self.next_declarator.add_into_table(data_type, table)
 			pos = pos.previous_declarators
 		pos.add_into_table(data_type, table)
+
+	def generate_code(self):
+		pos = self
+		self.previous_declarators.generate_code()
+		self.next_declarator.generate_code()
 
 
 class InitDeclaratorNode(BaseNode):
@@ -188,6 +202,26 @@ class InitDeclaratorNode(BaseNode):
 		array_size.reverse()
 		name = pos.item
 		pos.item = table.insert(name, data_type, array_size)
+
+
+	def generate_code(self):
+		array_size = list()
+		item = None
+		if isinstance(self.declarator, DeclaratorArrayNode):
+			(item, array_size) = self.declarator.array_meta
+		else:
+			item = self.declarator.item
+		
+		print_code(' ' * indent)
+		if len(array_size) > 0:
+			print_code("%s = list()\n" % item['actual_name'])
+		else:
+			if self.initializer is not None:
+				print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))
+			else:
+				print_code("%s = None\n" % item['actual_name'])
+
+
 class DeclaratorFunctionNode(BaseNode):
 	def __init__(self, declarator, param_type_list):
 		self.declarator = declarator
@@ -273,6 +307,11 @@ class CompoundStatementNode(BaseNode):
 		self.declaration_list = declaration_list
 		self.statement_list = statement_list
 
+	def generate_code(self):
+		if self.declaration_list is not None:
+			self.declaration_list.generate_code()
+		if self.statement_list is not None:
+			self.statement_list.generate_code()
 
 
 class StatementListNode(BaseNode):
