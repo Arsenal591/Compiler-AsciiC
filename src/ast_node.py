@@ -429,16 +429,16 @@ class SelectionStatementNode(BaseNode):
 
 	def generate_code(self):
 		global indent
+		if self.condition.is_leaf() == False:
+			temp_cond = self.condition.generate_code()
 		print_code(' ' * indent)
 		print_code('if ')
 		if self.condition.is_leaf():
 			self.condition.generate_code()
 		else:
-			pass
+			print_code(temp_cond)
 		print_code(':\n')
 		indent += 4
-		if self.condition.is_leaf() == False:
-			print_code('extra\n')
 		self.true_statement.generate_code()
 		indent -= 4
 		if self.false_statement is not None:
