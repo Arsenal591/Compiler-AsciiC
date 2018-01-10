@@ -26,6 +26,14 @@ class BaseNode(object):
 	def generate_code(self):
 		return None
 
+	def is_leaf(self):
+		is_leaf = isinstance(self, ConstantNode) \
+						or isinstance(self, StringLiteralNode) \
+						or isinstance(self, IdentifierNode) \
+						or isinstance(self, ArrayNode)
+		return is_leaf
+
+
 
 class ConstantNode(BaseNode):
 	def __init__(self, value):
@@ -169,14 +177,8 @@ class ExpressionNode(BaseNode):
 	def generate_code(self):
 		new_symbol_name = None
 		if self.op2 is not None:
-			is_leaf_1 = isinstance(self.op1, ConstantNode) \
-						or isinstance(self.op1, StringLiteralNode) \
-						or isinstance(self.op1, IdentifierNode) \
-						or isinstance(self.op1, ArrayNode)
-			is_leaf_2 = isinstance(self.op2, ConstantNode) \
-						or isinstance(self.op2, StringLiteralNode) \
-						or isinstance(self.op2, IdentifierNode) \
-						or isinstance(self.op2, ArrayNode)
+			is_leaf_1 = self.op1.is_leaf()
+			is_leaf_2 = self.op2.is_leaf()
 			if self.operator in assign_operators:
 				if is_leaf_2 == False and self.op2.value is None:
 					temp_op2 = self.op2.generate_code()
@@ -424,6 +426,28 @@ class SelectionStatementNode(BaseNode):
 		self.condition = condition
 		self.true_statement = true_statement
 		self.false_statement = false_statement
+
+	def generate_code(self):
+		global indent
+		print_code(' ' * indent)
+		print_code('if ')
+		if self.condition.is_leaf():
+			self.condition.generate_code()
+		else:
+			pass
+		print_code(':\n')
+		indent += 4
+		if self.condition.is_leaf() == False:
+			print_code('extra\n')
+		self.true_statement.generate_code()
+		indent -= 4
+		if self.false_statement is not None:
+			print_code(' ' * indent)
+			print_code('else:\n')
+			indent += 4
+			self.false_statement.generate_code()
+			indent -= 4
+		
 
 
 class IterationStatementNode(BaseNode):
