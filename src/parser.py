@@ -62,6 +62,8 @@ def p_primary_expression(p):
         if isinstance(p[1], IdentifierNode):
             # TODO : unexisting symbol
             item = symbol_table_chain.get_item(p[1].item)
+            if item is None:
+                raise ValueError('Symbol name %s not defined.' % p[1].item)
             p[1].item = item
         p[0] = p[1]
 
@@ -260,7 +262,7 @@ def p_init_declarator(p):
 
 
 #  struct_or_union_specifier
-#	enum_specifier
+#   enum_specifier
 def p_type_specifier(p):
     '''
     type_specifier : VOID
@@ -458,9 +460,9 @@ def p_translation_unit(p):
 
 def p_external_declaration(p):
     '''
-	external_declaration : function_definition
-		| declaration
-	'''
+    external_declaration : function_definition
+        | declaration
+    '''
 
     p[0] = p[1]
 
