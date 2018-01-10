@@ -57,13 +57,28 @@ class IdentifierNode(BaseNode):
 
 class ArrayNode(BaseNode):
 	def __init__(self, item, bias):
-		self.item = item.item
+		self.item = item
 		self.data_type = item.data_type
-		if isinstance(item, IdentifierNode):
-			self.bias = bias
-		else:
-			# TODO
-			pass
+		self.value = None
+		self.bias = bias
+
+
+	def generate_code(self):
+		pos = self
+		array_bias = list()
+		while isinstance(pos, ArrayNode):
+			array_bias.append(pos.bias.value)
+			pos = pos.item
+		array_bias.reverse()
+
+		flattened_bias = 0
+		factor = 1
+		i = len(array_bias) - 1
+		while i >= 0:
+			flattened_bias += factor * array_bias[i]
+			factor *= pos.item['array_size'][i]
+			i -= 1
+		print_code("%s[%d]" % (pos.item['actual_name'], flattened_bias))
 
 
 class FunctionCallNode(BaseNode):
@@ -156,10 +171,12 @@ class ExpressionNode(BaseNode):
 		if self.op2 is not None:
 			is_leaf_1 = isinstance(self.op1, ConstantNode) \
 						or isinstance(self.op1, StringLiteralNode) \
-						or isinstance(self.op1, IdentifierNode)
+						or isinstance(self.op1, IdentifierNode) \
+						or isinstance(self.op1, ArrayNode)
 			is_leaf_2 = isinstance(self.op2, ConstantNode) \
 						or isinstance(self.op2, StringLiteralNode) \
-						or isinstance(self.op2, IdentifierNode)
+						or isinstance(self.op2, IdentifierNode) \
+						or isinstance(self.op2, ArrayNode)
 			if self.operator in assign_operators:
 				if is_leaf_2 == False and self.op2.value is None:
 					temp_op2 = self.op2.generate_code()
