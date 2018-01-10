@@ -58,6 +58,10 @@ def p_primary_expression(p):
     if len(p) == 4:
         p[0] = p[2]
     else:
+        if isinstance(p[1], IdentifierNode):
+            # TODO : unexisting symbol
+            item = symbol_table_chain.get_item(p[1].item)
+            p[1].item = item
         p[0] = p[1]
 
 
