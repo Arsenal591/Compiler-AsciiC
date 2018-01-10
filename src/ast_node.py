@@ -455,11 +455,33 @@ class IterationStatementNode(BaseNode):
 		self.condition = condition
 		self.statement = statement
 
+	def generate_code(self):
+		global indent
+		print_code(' ' * indent)
+		print_code('while ')
+		if self.condition.is_leaf():
+			self.condition.generate_code()
+		else:
+			print_code('True')
+		print_code(':\n')
+		indent += 4
+		if self.condition.is_leaf() == False:
+			temp_cond = self.condition.generate_code()
+			print_code(' ' * indent)
+			print_code('if !%s:\n' % temp_cond)
+			print_code(' ' * (indent + 4))
+			print_code('break\n')
+		self.statement.generate_code()
+		indent -= 4
+
 
 class JumpStatementNode(BaseNode):
 	def __init__(self, jump_type, expression):
 		self.jump_type = jump_type
 		self.expression = expression
+
+	def generate_code(self):
+		pass
 
 
 class TranslationUnitNode(BaseNode):
