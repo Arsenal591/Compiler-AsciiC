@@ -4,6 +4,7 @@ indent = 0
 assign_operators = ['=', '*=', '/=', '%=', '+=', '-=', '<<=', '>>=', '&=', '^=', '|=']
 
 temp_var_count = 0
+
 def generate_unique_tempname():
 	global temp_var_count
 	temp_var_count += 1
@@ -11,6 +12,17 @@ def generate_unique_tempname():
 
 def print_code(*args):
 	print(*args, end='')
+
+
+def type_checking(data_type, value_node):
+	if data_type in ['int', 'char', 'short', 'long']:
+		if value_node.data_type in ['float', 'double']:
+			raise TypeError("%s type cannot be assigned to a %s type." \
+							% (value_node.data_type, data_type))
+	else:
+		value_node.data_type = 'float'
+		if value_node.value:
+			value_node.value = float(value_node.value)
 
 
 class BaseNode(object):
@@ -284,6 +296,10 @@ class InitDeclaratorNode(BaseNode):
 			pos = pos.declarator
 		array_size.reverse()
 		name = pos.item
+
+		# Type checking
+		type_checking(data_type, self.initializer)
+
 		pos.item = table.insert(name, data_type, array_size)
 
 

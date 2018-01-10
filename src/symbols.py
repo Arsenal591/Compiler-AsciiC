@@ -41,6 +41,10 @@ class SymbolTableChain(object):
 		actual_name = name
 		if array_size is None:
 			array_size = list()
+		if data_type in ['char', 'int', 'long', 'short']:
+			data_type = 'int'
+		elif data_type in ['float', 'double']:
+			data_type = 'float'
 		return self.current_table.insert(name, actual_name, data_type, array_size)
 
 	def get_item(self, name):
