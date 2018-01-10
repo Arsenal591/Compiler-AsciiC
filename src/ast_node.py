@@ -56,7 +56,7 @@ class ConstantNode(BaseNode):
 			self.data_type = 'float'
 
 	def generate_code(self):
-		print(self.value, end='')
+		print_code(self.value)
 
 
 class StringLiteralNode(BaseNode):
@@ -311,18 +311,29 @@ class InitDeclaratorNode(BaseNode):
 		else:
 			item = self.declarator.item
 		
-		print_code(' ' * indent)
 		if len(array_size) > 0:
 			flattened_array_size = 1
 			for n in array_size:
 				flattened_array_size *= n
+			print_code(' ' * indent)
 			print_code("%s = [0] * %d\n" % (item['actual_name'], flattened_array_size))
 		else:
 			if self.initializer is not None:
+				if self.initializer.is_leaf():
+					print_code(' ' * indent)
+					print_code("%s = " % item['actual_name'])
+					self.initializer.generate_code()
+					print_code('\n')
+				else:
+					temp_ini = self.initializer.generate_code()
+					print_code(' ' * indent)
+					print_code("%s = %s\n" % (item['actual_name'], temp_ini))
+
+				"""
 				if self.declarator.item['data_type'] == 'int' and self.initializer.data_type == 'int':
 					print_code("%s = %d\n" % (item['actual_name'], self.initializer.value))
 				else:
-					print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))
+					print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))"""
 			else:
 				print_code("%s = None\n" % item['actual_name'])
 
