@@ -3,8 +3,15 @@ indent = 0
 
 assign_operators = ['=', '*=', '/=', '%=', '+=', '-=', '<<=', '>>=', '&=', '^=', '|=']
 
+temp_var_count = 0
+def generate_unique_tempname():
+	global temp_var_count
+	temp_var_count += 1
+	return 'temp_var_%d' % temp_var_count
+
 def print_code(*args):
 	print(*args, end='')
+
 
 class BaseNode(object):
 	def __init__(self):
@@ -167,12 +174,12 @@ class ExpressionNode(BaseNode):
 					print_code(temp_op2)
 				print_code('\n')
 			else:
-				if is_leaf_1 == False and self.op1.value is not None:
+				if is_leaf_1 == False and self.op1.value is None:
 					temp_op1 = self.op1.generate_code()
-				if is_leaf_2 == False and self.op2.value is not None:
+				if is_leaf_2 == False and self.op2.value is None:
 					temp_op2 = self.op2.generate_code()
 				print_code(' ' * indent)
-				new_symbol_name = 'fuck'
+				new_symbol_name = generate_unique_tempname()
 				print_code('%s = ' % new_symbol_name)
 				if is_leaf_1:
 					self.op1.generate_code()
