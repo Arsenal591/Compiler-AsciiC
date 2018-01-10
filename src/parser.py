@@ -4,6 +4,7 @@ from ast_node import *
 from symbols import *
 
 symbol_table_chain = SymbolTableChain()
+function_table = FunctionTable()
 
 precedence = (
     ('left', 'OR_OP'),
@@ -472,6 +473,23 @@ def p_function_definition(p):
     p[0] = FunctionDefinition(p[1], p[2], p[4])
     
 
+
+def insert_new_parameter_type(declaration, dst):
+    # record type of function parameters
+    if isinstance(declaration.declarator, IdentifierNode):
+        dst.append({
+            'data_type': declaration.data_type,
+            'array_size': [],
+        })
+    elif isinstance(declaration.declarator, DeclaratorArrayNode):
+        dst.append({
+            'data_type' : declaration.data_type,
+            'array_size' : declaration.declarator.array_meta[1],
+        })
+    else:
+        raise ValueError()
+
+
 def p_generate_symbol_table(p):
     '''
     generate_symbol_table :
@@ -479,24 +497,31 @@ def p_generate_symbol_table(p):
     symbol_table_chain.push_chain()
     # if it is next to a function definition
     if isinstance(p[-1], DeclaratorFunctionNode):
-    	if p[-1].param_type_list is None:
-    		pass
-    	elif isinstance(p[-1].param_type_list, ParameterDeclarationNode):
-    		p[-1].param_type_list.add_into_table(symbol_table_chain)
-    	elif isinstance(p[-1].param_type_list, ParameterTypeListNode):
-    		pos = p[-1].param_type_list
-    		while isinstance(pos, ParameterTypeListNode):
-    			pos.next_declaration.add_into_table(symbol_table_chain)
-    			pos = pos.previous_declarations
-    		pos.add_into_table(symbol_table_chain)
-    	else:
-    		raise TypeError()
+        param_type_list = []
+        if p[-1].param_type_list is None:
+            pass
+        elif isinstance(p[-1].param_type_list, ParameterDeclarationNode):
+            # add parameter into symbol table
+            p[-1].param_type_list.add_into_table(symbol_table_chain)
+            insert_new_parameter_type(p[-1].param_type_list, param_type_list)
+            
+        elif isinstance(p[-1].param_type_list, ParameterTypeListNode):
+            pos = p[-1].param_type_list
+            while isinstance(pos, ParameterTypeListNode):
+                pos.next_declaration.add_into_table(symbol_table_chain)
+                insert_new_parameter_type(pos.next_declaration, param_type_list)
 
-    	pass
-    #print(p[-1].param_type_list.declarator.constant_expression.value)
+                pos = pos.previous_declarations
+            pos.add_into_table(symbol_table_chain)
+            insert_new_parameter_type(pos, param_type_list)
+        else:
+            raise TypeError()
 
-    #if p[-1]
-    #print(p[-1])
+        param_type_list.reverse()
+        function_name = p[-1].declarator.item
+        return_type = p[-2]
+        new_item = function_table.insert(function_name, return_type, param_type_list)
+        p[-1].declarator.item = new_item
 
 
 def p_pop_symbol_table(p):

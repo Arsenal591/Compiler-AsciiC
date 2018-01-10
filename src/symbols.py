@@ -28,7 +28,10 @@ class SymbolTableChain(object):
 
 	def push_chain(self):
 		self.depth += 1
-		self.tables.append(SymbolTable())
+		new_table = SymbolTable()
+		for key in self.current_table.items.keys():
+			new_table.items[key] = self.current_table.items[key]
+		self.tables.append(new_table)
 
 	def pop_chain(self):
 		self.depth -= 1
@@ -49,4 +52,20 @@ class SymbolTableChain(object):
 
 	def get_item(self, name):
 		return self.current_table.get_item(name)
+
+
+class FunctionTable(object):
+	def __init__(self):
+		self.items = {}
+
+	def insert(self, name, return_type, param_type_list):
+		new_item = {
+			'return_type' : return_type,
+			'param_type_list' : param_type_list,
+		}
+		self.items[name] = new_item
+		return new_item
+
+	def get_item(self, name):
+		return self.items[name]
 		
