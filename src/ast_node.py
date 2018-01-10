@@ -43,6 +43,7 @@ class BaseNode(object):
 						or isinstance(self, StringLiteralNode) \
 						or isinstance(self, IdentifierNode) \
 						or isinstance(self, ArrayNode)
+						or isinstance(self, IdentifierNode) 
 		return is_leaf
 
 
@@ -85,20 +86,55 @@ class ArrayNode(BaseNode):
 
 	def generate_code(self):
 		pos = self
-		array_bias = list()
 		while isinstance(pos, ArrayNode):
-			array_bias.append(pos.bias.value)
 			pos = pos.item
-		array_bias.reverse()
+		item = pos.item
 
-		flattened_bias = 0
+		pos = self
+		flag = True
 		factor = 1
-		i = len(array_bias) - 1
-		while i >= 0:
-			flattened_bias += factor * array_bias[i]
-			factor *= pos.item['array_size'][i]
+		flattened_bias = 0
+		i = -1
+
+		while isinstance(pos, ArrayNode):
+			if flag:
+				if pos.bias.value is not None:
+					flattened_bias += factor * pos.bias.value
+				else:
+					flag = False
+					last_temp_name = str(flattened_bias)
+
+			if flag == False:
+				temp_name_middle = generate_unique_tempname()
+				temp_name = generate_unique_tempname()
+				if pos.bias.is_leaf():
+					print_code(' ' * indent)
+					print_code('%s = %d * ' % (temp_name_middle, factor))
+					pos.bias.generate_code()
+					print_code('\n')
+				else:
+					temp_name_expr = pos.bias.generate_code()
+					print_code(' ' * indent)
+					print_code('%s = %d * %s\n' % (temp_name_middle, factor, temp_name_expr))
+
+				print_code(' ' * indent)
+				print_code('%s = %s + %s\n' % (temp_name, temp_name_middle, last_temp_name))
+				last_temp_name = temp_name
+
+			factor *= item['array_size'][i]
 			i -= 1
-		print_code("%s[%d]" % (pos.item['actual_name'], flattened_bias))
+			pos = pos.item
+		
+
+		if flag:
+			final_name = '%s[%d]' % (item['actual_name'], flattened_bias)
+			#print_code(' ' * indent)
+			#print_code('%s = %s[%d]\n' % (final_name, item['actual_name'], flattened_bias))
+		else:
+			final_name = '%s[%s]' % (item['actual_name'], last_temp_name)
+			#print_code(' ' * indent)
+			#print_code('%s = %s[%s]\n' % (final_name, item['actual_name'], last_temp_name))
+		return final_name
 
 
 class FunctionCallNode(BaseNode):
@@ -235,10 +271,15 @@ class ExpressionNode(BaseNode):
 			is_leaf_1 = self.op1.is_leaf()
 			is_leaf_2 = self.op2.is_leaf()
 			if self.operator in assign_operators:
+				if is_leaf_1 == False and self.op1.value is None:
+					temp_op1 = self.op1.generate_code()
 				if is_leaf_2 == False and self.op2.value is None:
 					temp_op2 = self.op2.generate_code()
 				print_code(' ' * indent)
-				self.op1.generate_code()
+				if is_leaf_1:
+					self.op1.generate_code()
+				else:
+					print_code(temp_op1)
 				print_code(' %s ' % self.operator)
 				if is_leaf_2:
 					self.op2.generate_code()
@@ -272,7 +313,20 @@ class ExpressionNode(BaseNode):
 				return new_symbol_name
 				#print_code('fuck = ')
 		else:
-			pass
+			is_leaf_1 = self.op1.is_leaf()
+			if is_leaf_1 == False and self.op1.value is None:
+				temp_op1 = self.op1.generate_code()
+			print_code(' ' * indent)
+			new_symbol_name = generate_unique_tempname()
+			print_code('%s = %s' % (new_symbol_name, self.operator))
+			if is_leaf_1:
+				self.op1.generate_code()
+			elif self.op1.value is not None:
+				print_code(self.op1.value)
+			else:
+				print_code(temp_op1)
+			print_code('\n')
+			return new_symbol_name
 
 
 
