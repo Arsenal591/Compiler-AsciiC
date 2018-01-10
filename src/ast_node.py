@@ -346,7 +346,7 @@ class DeclaratorFunctionNode(BaseNode):
 
 	def generate_code(self):
 		global indent
-		print_code(self.declarator.item)
+		print_code(self.declarator.item['actual_name'])
 		print_code("(")
 
 		if self.param_type_list is not None:
@@ -429,6 +429,10 @@ class CompoundStatementNode(BaseNode):
 			self.declaration_list.generate_code()
 		if self.statement_list is not None:
 			self.statement_list.generate_code()
+
+		if self.declaration_list is None and self.statement_list is None:
+			print_code(' ' * indent)
+			print_code('pass\n')
 
 
 class StatementListNode(BaseNode):

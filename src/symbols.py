@@ -62,6 +62,7 @@ class FunctionTable(object):
 		new_item = {
 			'return_type' : return_type,
 			'param_type_list' : param_type_list,
+			'actual_name' : name,
 		}
 		self.items[name] = new_item
 		return new_item
