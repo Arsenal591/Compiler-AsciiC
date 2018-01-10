@@ -44,7 +44,7 @@ class SymbolTableChain(object):
 		actual_name = name
 		if array_size is None:
 			array_size = list()
-		if data_type in ['char', 'int', 'long', 'short']:
+		if data_type in ['int', 'long', 'short']:
 			data_type = 'int'
 		elif data_type in ['float', 'double']:
 			data_type = 'float'

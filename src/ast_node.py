@@ -5,6 +5,12 @@ assign_operators = ['=', '*=', '/=', '%=', '+=', '-=', '<<=', '>>=', '&=', '^=',
 
 temp_var_count = 0
 
+operator_mappings = {
+	'!' : 'not',
+	'||' : 'or',
+	'&&' : 'and',
+}
+
 def generate_unique_tempname():
 	global temp_var_count
 	temp_var_count += 1
@@ -13,6 +19,13 @@ def generate_unique_tempname():
 def print_code(*args):
 	print(*args, end='')
 
+
+def print_operator(op):
+	real_op = operator_mappings.get(op)
+	if real_op is not None:
+		print_code(real_op)
+	else:
+		print_code(op)
 
 def type_checking(data_type, value_node):
 	if data_type in ['int', 'char', 'short', 'long']:
@@ -41,8 +54,6 @@ class BaseNode(object):
 	def is_leaf(self):
 		is_leaf = isinstance(self, ConstantNode) \
 						or isinstance(self, StringLiteralNode) \
-						or isinstance(self, IdentifierNode) \
-						or isinstance(self, ArrayNode)
 						or isinstance(self, IdentifierNode) 
 		return is_leaf
 
@@ -56,14 +67,20 @@ class ConstantNode(BaseNode):
 		else:
 			self.data_type = 'float'
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		print_code(self.value)
 
 
 class StringLiteralNode(BaseNode):
 	def __init__(self, value):
-		self.value = value
+		if value[-3:-1] != '\\0':
+			self.value = "%s\\0%s" % (value[0:-1], value[-1:])
+		else:
+			self.value = value
 		self.data_type = 'str'
+
+	def generate_code(self, table=None):
+		print_code(self.value)
 
 
 class IdentifierNode(BaseNode):
@@ -72,8 +89,11 @@ class IdentifierNode(BaseNode):
 		self.item = item
 		self.data_type = None
 
-	def generate_code(self):
-		print_code(self.item['actual_name'])
+	def generate_code(self, table=None):
+		if self.item['data_type'] == 'char':
+			print_code('ord(%s)' % self.item['actual_name'])
+		else:
+			print_code(self.item['actual_name'])
 
 
 class ArrayNode(BaseNode):
@@ -84,7 +104,7 @@ class ArrayNode(BaseNode):
 		self.bias = bias
 
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		pos = self
 		while isinstance(pos, ArrayNode):
 			pos = pos.item
@@ -134,6 +154,9 @@ class ArrayNode(BaseNode):
 			final_name = '%s[%s]' % (item['actual_name'], last_temp_name)
 			#print_code(' ' * indent)
 			#print_code('%s = %s[%s]\n' % (final_name, item['actual_name'], last_temp_name))
+		
+		if item['data_type'] == 'char':
+			return 'ord(%s)' % final_name
 		return final_name
 
 
@@ -142,8 +165,9 @@ class FunctionCallNode(BaseNode):
 		self.func = func
 		self.argument_list = argument_list
 		self.data_type = self.func.item['return_type']
+		self.value = None
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		#print(self.func)
 		#self.argument_list.generate_code()
 		#pass
@@ -158,7 +182,10 @@ class FunctionCallNode(BaseNode):
 				temp_args.append(pos.next_arg.generate_code())
 			pos = pos.previous_args
 
-		if pos.is_leaf():
+
+		if pos is None:
+			pass
+		elif pos.is_leaf():
 			temp_args.append(pos)
 		elif pos.value is not None:
 			temp_args.append(pos.value)
@@ -265,7 +292,7 @@ class ExpressionNode(BaseNode):
 				self.value = self.cal_binary_expression(op1.value, operator, op2.value)
 		#print(self.value)
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		new_symbol_name = None
 		if self.op2 is not None:
 			is_leaf_1 = self.op1.is_leaf()
@@ -280,7 +307,9 @@ class ExpressionNode(BaseNode):
 					self.op1.generate_code()
 				else:
 					print_code(temp_op1)
-				print_code(' %s ' % self.operator)
+				print_code(' ')
+				print_operator(self.operator)
+				print_code(' ')
 				if is_leaf_2:
 					self.op2.generate_code()
 				elif self.op2.value is not None:
@@ -302,7 +331,9 @@ class ExpressionNode(BaseNode):
 					print_code(self.op1.value)
 				else:
 					print_code(temp_op1)
-				print_code(' %s ' % self.operator)
+				print_code(' ')
+				print_operator(self.operator)
+				print_code(' ')
 				if is_leaf_2:
 					self.op2.generate_code()
 				elif self.op2.value is not None:
@@ -311,14 +342,14 @@ class ExpressionNode(BaseNode):
 					print_code(temp_op2)
 				print_code('\n')
 				return new_symbol_name
-				#print_code('fuck = ')
 		else:
 			is_leaf_1 = self.op1.is_leaf()
 			if is_leaf_1 == False and self.op1.value is None:
 				temp_op1 = self.op1.generate_code()
 			print_code(' ' * indent)
 			new_symbol_name = generate_unique_tempname()
-			print_code('%s = %s' % (new_symbol_name, self.operator))
+			print_code('%s = ' % new_symbol_name)
+			print_operator(self.operator)
 			if is_leaf_1:
 				self.op1.generate_code()
 			elif self.op1.value is not None:
@@ -346,7 +377,7 @@ class DeclarationNode(BaseNode):
 		self.init_declarator_list.add_into_table(self.data_type, table)
 
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		self.init_declarator_list.generate_code()
 
 
@@ -355,7 +386,7 @@ class DeclarationListNode(BaseNode):
 		self.previous_declarations = previous_declarations
 		self.next_declaration = next_declaration
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		self.previous_declarations.generate_code()
 		self.next_declaration.generate_code()
 
@@ -373,7 +404,7 @@ class InitDeclaratorListNode(BaseNode):
 			pos = pos.previous_declarators
 		pos.add_into_table(data_type, table)
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		pos = self
 		self.previous_declarators.generate_code()
 		self.next_declarator.generate_code()
@@ -401,7 +432,7 @@ class InitDeclaratorNode(BaseNode):
 		pos.item = table.insert(name, data_type, array_size)
 
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		array_size = list()
 		item = None
 		if isinstance(self.declarator, DeclaratorArrayNode):
@@ -414,7 +445,12 @@ class InitDeclaratorNode(BaseNode):
 			for n in array_size:
 				flattened_array_size *= n
 			print_code(' ' * indent)
-			print_code("%s = [0] * %d\n" % (item['actual_name'], flattened_array_size))
+			if isinstance(self.initializer, StringLiteralNode):
+				print_code("%s = " % item['actual_name'])
+				self.initializer.generate_code()
+				print_code("\n")
+			else:
+				print_code("%s = [0] * %d\n" % (item['actual_name'], flattened_array_size))
 		else:
 			if self.initializer is not None:
 				if self.initializer.is_leaf():
@@ -436,7 +472,7 @@ class DeclaratorFunctionNode(BaseNode):
 		self.declarator = declarator
 		self.param_type_list = param_type_list
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		global indent
 		print_code(self.declarator.item['actual_name'])
 		print_code("(")
@@ -470,7 +506,7 @@ class ParameterTypeListNode(BaseNode):
 		self.next_declaration = next_declaration
 
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		self.previous_declarations.generate_code()
 		print_code(", ")
 		self.next_declaration.generate_code()
@@ -493,7 +529,7 @@ class ParameterDeclarationNode(BaseNode):
 		pos.item = table.insert(name, self.data_type, array_size)
 
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		pos = self.declarator
 		while isinstance(pos, DeclaratorArrayNode):
 			pos = pos.declarator
@@ -516,15 +552,27 @@ class CompoundStatementNode(BaseNode):
 		self.declaration_list = declaration_list
 		self.statement_list = statement_list
 
-	def generate_code(self):
+	def generate_code(self, table=None):
+		if table is not None:
+			symbol_count = len(table.current_table.items)
+			#print(table.current_table.items)
+			for key in table.current_table.items:
+				print_code(' ' * indent)
+				print_code('global %s\n' % table.current_table.items[key]['actual_name'])
+			
+
 		if self.declaration_list is not None:
 			self.declaration_list.generate_code()
 		if self.statement_list is not None:
 			self.statement_list.generate_code()
 
 		if self.declaration_list is None and self.statement_list is None:
-			print_code(' ' * indent)
-			print_code('pass\n')
+			if table is None :
+				print_code(' ' * indent)
+				print_code('pass\n')
+			elif symbol_count == 0:
+				print_code(' ' * indent)
+				print_code('pass\n')
 
 
 class StatementListNode(BaseNode):
@@ -532,7 +580,7 @@ class StatementListNode(BaseNode):
 		self.previous_statements = previous_statements
 		self.next_statement = next_statement
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		self.previous_statements.generate_code()
 		self.next_statement.generate_code()
 
@@ -541,7 +589,7 @@ class ExpressionStatementNode(BaseNode):
 	def __init__(self, expression):
 		self.expression = expression
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		self.expression.generate_code()
 
 
@@ -551,7 +599,7 @@ class SelectionStatementNode(BaseNode):
 		self.true_statement = true_statement
 		self.false_statement = false_statement
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		global indent
 		if self.condition.is_leaf() == False:
 			temp_cond = self.condition.generate_code()
@@ -579,7 +627,7 @@ class IterationStatementNode(BaseNode):
 		self.condition = condition
 		self.statement = statement
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		global indent
 		print_code(' ' * indent)
 		print_code('while ')
@@ -592,7 +640,7 @@ class IterationStatementNode(BaseNode):
 		if self.condition.is_leaf() == False:
 			temp_cond = self.condition.generate_code()
 			print_code(' ' * indent)
-			print_code('if !%s:\n' % temp_cond)
+			print_code('if not %s:\n' % temp_cond)
 			print_code(' ' * (indent + 4))
 			print_code('break\n')
 		self.statement.generate_code()
@@ -604,7 +652,7 @@ class JumpStatementNode(BaseNode):
 		self.jump_type = jump_type
 		self.expression = expression
 
-	def generate_code(self):
+	def generate_code(self, table=None):
 		if self.jump_type == 'continue' or self.jump_type == 'break':
 			print_code(' ' * indent)
 			print_code(self.jump_type)
@@ -630,9 +678,9 @@ class TranslationUnitNode(BaseNode):
 		self.previous_units = previous_units
 		self.next_unit = next_unit
 
-	def generate_code(self):
-		self.previous_units.generate_code()
-		self.next_unit.generate_code()
+	def generate_code(self, table):
+		self.previous_units.generate_code(table)
+		self.next_unit.generate_code(table)
 
 
 class FunctionDefinition(BaseNode):
@@ -641,12 +689,12 @@ class FunctionDefinition(BaseNode):
 		self.declarator = declarator
 		self.statements = statements
 
-	def generate_code(self):
+	def generate_code(self, table):
 		global indent
 		print_code("def ")
 		self.declarator.generate_code()
 		print_code(":\n")
 		indent += 4
-		self.statements.generate_code()
+		self.statements.generate_code(table)
 		print_code("\n")
 		indent -= 4

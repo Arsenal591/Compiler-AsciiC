@@ -82,6 +82,7 @@ def t_CONSTANT(t):
 
 def t_STRING_LITERAL(t):
     r'"(\\.|[^\\"])*"'
+    return t
 
 
 def t_error(t):
