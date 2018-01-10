@@ -481,7 +481,24 @@ class JumpStatementNode(BaseNode):
 		self.expression = expression
 
 	def generate_code(self):
-		pass
+		if self.jump_type == 'continue' or self.jump_type == 'break':
+			print_code(' ' * indent)
+			print_code(self.jump_type)
+			print_code('\n')
+		elif self.jump_type == 'return':
+			if self.expression is None:
+				print_code(' ' * indent)
+				print_code("return\n")
+			else:
+				if self.expression.is_leaf():
+					print_code(' ' * indent)
+					print_code("return ")
+					self.expression.generate_code()
+					print_code("\n")
+				else:
+					ret_val = self.expression.generate_code()
+					print_code(' ' * indent)
+					print_code("return %s\n" % ret_val)
 
 
 class TranslationUnitNode(BaseNode):
