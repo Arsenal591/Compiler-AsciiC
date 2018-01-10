@@ -69,7 +69,10 @@ def t_CONSTANT(t):
             pattern = key
             break
     if constant_patterns[key] != 'char':
-        t.value = float(t.value)
+        if constant_patterns[key] in ['hex', 'oct', 'dec']:
+            t.value = int(t.value)
+        else:
+            t.value = float(t.value)
     else:
         value = t.value
         char = bytes(value[1:-1], 'utf-8').decode('unicode_escape')

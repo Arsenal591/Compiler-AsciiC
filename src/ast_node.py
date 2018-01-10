@@ -21,7 +21,10 @@ class BaseNode(object):
 class ConstantNode(BaseNode):
 	def __init__(self, value):
 		self.value = value
-		self.data_type = 'float'
+		if isinstance(self.value, int):
+			self.data_type = 'int'
+		else:
+			self.data_type = 'float'
 
 	def generate_code(self):
 		print(self.value, end='')
@@ -217,11 +220,13 @@ class InitDeclaratorNode(BaseNode):
 			flattened_array_size = 1
 			for n in array_size:
 				flattened_array_size *= n
-			flattened_array_size = int(flattened_array_size)
 			print_code("%s = [0] * %d\n" % (item['actual_name'], flattened_array_size))
 		else:
 			if self.initializer is not None:
-				print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))
+				if self.declarator.item['data_type'] == 'int' and self.initializer.data_type == 'int':
+					print_code("%s = %d\n" % (item['actual_name'], self.initializer.value))
+				else:
+					print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))
 			else:
 				print_code("%s = None\n" % item['actual_name'])
 
