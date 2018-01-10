@@ -298,7 +298,8 @@ class InitDeclaratorNode(BaseNode):
 		name = pos.item
 
 		# Type checking
-		type_checking(data_type, self.initializer)
+		if self.initializer:
+			type_checking(data_type, self.initializer)
 
 		pos.item = table.insert(name, data_type, array_size)
 
@@ -532,6 +533,10 @@ class TranslationUnitNode(BaseNode):
 	def __init__(self, previous_units, next_unit):
 		self.previous_units = previous_units
 		self.next_unit = next_unit
+
+	def generate_code(self):
+		self.previous_units.generate_code()
+		self.next_unit.generate_code()
 
 
 class FunctionDefinition(BaseNode):
