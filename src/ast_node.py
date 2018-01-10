@@ -406,6 +406,10 @@ class StatementListNode(BaseNode):
 		self.previous_statements = previous_statements
 		self.next_statement = next_statement
 
+	def generate_code(self):
+		self.previous_statements.generate_code()
+		self.next_statement.generate_code()
+
 
 class ExpressionStatementNode(BaseNode):
 	def __init__(self, expression):
