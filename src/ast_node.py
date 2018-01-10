@@ -1,6 +1,8 @@
 
 indent = 0
 
+assign_operators = ['=', '*=', '/=', '%=', '+=', '-=', '<<=', '>>=', '&=', '^=', '|=']
+
 def print_code(*args):
 	print(*args, end='')
 
@@ -41,6 +43,9 @@ class IdentifierNode(BaseNode):
 		self.value = None
 		self.item = item
 		self.data_type = None
+
+	def generate_code(self):
+		print_code(self.item['actual_name'])
 
 
 class ArrayNode(BaseNode):
@@ -138,6 +143,55 @@ class ExpressionNode(BaseNode):
 			if op1.value is not None and op2.value is not None:
 				self.value = self.cal_binary_expression(op1.value, operator, op2.value)
 		#print(self.value)
+
+	def generate_code(self):
+		new_symbol_name = None
+		if self.op2 is not None:
+			is_leaf_1 = isinstance(self.op1, ConstantNode) \
+						or isinstance(self.op1, StringLiteralNode) \
+						or isinstance(self.op1, IdentifierNode)
+			is_leaf_2 = isinstance(self.op2, ConstantNode) \
+						or isinstance(self.op2, StringLiteralNode) \
+						or isinstance(self.op2, IdentifierNode)
+			if self.operator in assign_operators:
+				if is_leaf_2 == False and self.op2.value is None:
+					temp_op2 = self.op2.generate_code()
+				print_code(' ' * indent)
+				self.op1.generate_code()
+				print_code(' %s ' % self.operator)
+				if is_leaf_2:
+					self.op2.generate_code()
+				elif self.op2.value is not None:
+					print_code(self.op2.value)
+				else:
+					print_code(temp_op2)
+				print_code('\n')
+			else:
+				if is_leaf_1 == False and self.op1.value is not None:
+					temp_op1 = self.op1.generate_code()
+				if is_leaf_2 == False and self.op2.value is not None:
+					temp_op2 = self.op2.generate_code()
+				print_code(' ' * indent)
+				new_symbol_name = 'fuck'
+				print_code('%s = ' % new_symbol_name)
+				if is_leaf_1:
+					self.op1.generate_code()
+				elif self.op1.value is not None:
+					print_code(self.op1.value)
+				else:
+					print_code(temp_op1)
+				print_code(' %s ' % self.operator)
+				if is_leaf_2:
+					self.op2.generate_code()
+				elif self.op2.value is not None:
+					print_code(self.op2.value)
+				else:
+					print_code(temp_op2)
+				print_code('\n')
+				return new_symbol_name
+				#print_code('fuck = ')
+		else:
+			pass
 
 
 
@@ -332,6 +386,9 @@ class StatementListNode(BaseNode):
 class ExpressionStatementNode(BaseNode):
 	def __init__(self, expression):
 		self.expression = expression
+
+	def generate_code(self):
+		self.expression.generate_code()
 
 
 class SelectionStatementNode(BaseNode):
