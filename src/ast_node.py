@@ -105,6 +105,49 @@ class FunctionCallNode(BaseNode):
 	def __init__(self, func, argument_list):
 		self.func = func
 		self.argument_list = argument_list
+		self.data_type = self.func.item['return_type']
+
+	def generate_code(self):
+		#print(self.func)
+		#self.argument_list.generate_code()
+		#pass
+		temp_args = []
+		pos = self.argument_list
+		while isinstance(pos, ArgumentListNode):
+			if pos.next_arg.is_leaf():
+				temp_args.append(pos.next_arg)
+			elif pos.next_arg.value is not None:
+				temp_args.append(pos.next_arg.value)
+			else:
+				temp_args.append(pos.next_arg.generate_code())
+			pos = pos.previous_args
+
+		if pos.is_leaf():
+			temp_args.append(pos)
+		elif pos.value is not None:
+			temp_args.append(pos.value)
+		else:
+			temp_args.append(pos.generate_code())
+
+		temp_args.reverse()
+
+		temp_name = generate_unique_tempname()
+		print_code(' ' * indent)
+		print_code("%s = %s" % (temp_name, self.func.item['actual_name']))
+		print_code('(')
+
+		for i in range(len(temp_args)):
+			arg = temp_args[i]
+			if isinstance(arg, BaseNode):
+				arg.generate_code()
+			else:
+				print_code(arg)
+
+			if i < len(temp_args) - 1:
+				print_code(', ')
+		print_code(')\n')
+		return temp_name
+		#print(temp_args)
 
 
 class ArgumentListNode(BaseNode):
@@ -329,13 +372,8 @@ class InitDeclaratorNode(BaseNode):
 					temp_ini = self.initializer.generate_code()
 					print_code(' ' * indent)
 					print_code("%s = %s\n" % (item['actual_name'], temp_ini))
-
-				"""
-				if self.declarator.item['data_type'] == 'int' and self.initializer.data_type == 'int':
-					print_code("%s = %d\n" % (item['actual_name'], self.initializer.value))
-				else:
-					print_code("%s = %f\n" % (item['actual_name'], self.initializer.value))"""
 			else:
+				print_code(' ' * indent)
 				print_code("%s = None\n" % item['actual_name'])
 
 
