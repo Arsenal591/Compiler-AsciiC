@@ -63,7 +63,12 @@ def p_primary_expression(p):
             # TODO : unexisting symbol
             item = symbol_table_chain.get_item(p[1].item)
             if item is None:
-                raise ValueError('Symbol name %s not defined.' % p[1].item)
+                item = function_table.get_item(p[1].item)
+                if item is None:
+                    print('line %d : Symbol name %s not defined.'
+                                     % (p.lineno(0), p[1].item))
+            else:
+                p[1].data_type = item['data_type']
             p[1].item = item
         p[0] = p[1]
 
@@ -86,12 +91,20 @@ def p_postfix_expression(p):
         p[0] = ExpressionNode(p[1], p[2], None)
     elif len(p) == 4:
         if p[2] == '(':
-            p[0] = FunctionCallNode(p[1], None)
+            try:
+                p[0] = FunctionCallNode(p[1], None)
+            except Exception as e:
+                print("Line %d : %s" % (p.lineno(0), str(e)))
+                raise e
         else:
             p[0] = ExpressionNode(p[1], p[2], p[3])
     else:
         if p[2] == '(':
-            p[0] = FunctionCallNode(p[1], p[3])
+            try:
+                p[0] = FunctionCallNode(p[1], p[3])
+            except Exception as e:
+                print("Line %d : %s" % (p.lineno(0), str(e)))
+                raise e
         else:
             p[0] = ArrayNode(p[1], p[3])
 
@@ -174,7 +187,7 @@ def p_unary_expression(p):
     if len(p) == 2:
         p[0] = p[1]
     else:
-        p[0] = ExpressionNode(None, p[1], p[2])
+        p[0] = ExpressionNode(p[2], p[1], None)
 
 
 def p_binary_expression(p):

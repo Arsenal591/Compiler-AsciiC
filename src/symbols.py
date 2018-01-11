@@ -68,5 +68,6 @@ class FunctionTable(object):
 		return new_item
 
 	def get_item(self, name):
-		return self.items[name]
+		return self.items.get(name)
+		
 		

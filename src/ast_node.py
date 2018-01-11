@@ -163,6 +163,22 @@ class FunctionCallNode(BaseNode):
 		self.data_type = self.func.item['return_type']
 		self.value = None
 
+		args_type = []
+		pos = self.argument_list
+		while isinstance(pos, ArgumentListNode):
+			args_type.append(pos.next_arg.data_type)
+			pos = pos.previous_args
+		if pos:
+			args_type.append(pos.data_type)
+		args_type.reverse()
+
+		required_len = len(self.func.item['param_type_list'])
+		actual_len = len(args_type)
+		if required_len != actual_len:
+			#return
+			raise SyntaxError('Function %s requires %d arguments but %d is given.' \
+							% (self.func.item['actual_name'], required_len, actual_len))
+
 	def generate_code(self, table=None):
 		temp_args = []
 		pos = self.argument_list
