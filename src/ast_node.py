@@ -1,4 +1,6 @@
 
+output_file = None
+
 indent = 0
 
 assign_operators = ['=', '*=', '/=', '%=', '+=', '-=', '<<=', '>>=', '&=', '^=', '|=']
@@ -19,7 +21,11 @@ def generate_unique_tempname():
 	return 'temp_var_%d' % temp_var_count
 
 def print_code(*args):
-	print(*args, end='')
+	global output_file
+	if output_file is None:
+		print(*args, end='')
+	else:
+		print(*args, end='', file=output_file)
 
 
 def print_operator(op):

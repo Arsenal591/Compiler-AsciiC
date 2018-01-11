@@ -562,7 +562,7 @@ parser = yacc.yacc(start='translation_unit', debug=True, debuglog=log)
 def generate_code(data):
     node = parser.parse(data, debug=log)
     node.generate_code(symbol_table_chain)
-    print('main()')
+    print_code('main()')
 #node = parser.parse(data, debug=log)
 #node.generate_code(symbol_table_chain)
 
