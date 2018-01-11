@@ -6,6 +6,8 @@ from symbols import *
 symbol_table_chain = SymbolTableChain()
 function_table = FunctionTable()
 
+function_table.insert('printf', 'void', [])
+
 precedence = (
     ('left', 'OR_OP'),
     ('left', 'AND_OP'),
@@ -543,7 +545,7 @@ def p_pop_symbol_table(p):
     '''
     pop_symbol_table : 
     '''
-    #symbol_table_chain.pop_chain()
+    symbol_table_chain.pop_chain()
 
 
 import logging
@@ -557,18 +559,10 @@ log = logging.getLogger()
 
 parser = yacc.yacc(start='translation_unit', debug=True, debuglog=log)
 
-data = """
-int foo(int x[5][9], int y)
-{
-	int m, n = 7, q = 12;
-	char ee[122];
-}
-"""
-
-node = parser.parse(data, debug=log)
-node.generate_code()
-#print(node.statements.declaration_list.init_declarator_list.declarator.item)
-#print(symbol_table_chain.get_item('x'))
-print(symbol_table_chain.current_table.items)
-exit(0)
+def generate_code(data):
+    node = parser.parse(data, debug=log)
+    node.generate_code(symbol_table_chain)
+    print('main()')
+#node = parser.parse(data, debug=log)
+#node.generate_code(symbol_table_chain)
 
