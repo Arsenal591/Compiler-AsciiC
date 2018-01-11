@@ -148,12 +148,8 @@ class ArrayNode(BaseNode):
 
 		if flag:
 			final_name = '%s[%d]' % (item['actual_name'], flattened_bias)
-			#print_code(' ' * indent)
-			#print_code('%s = %s[%d]\n' % (final_name, item['actual_name'], flattened_bias))
 		else:
 			final_name = '%s[%s]' % (item['actual_name'], last_temp_name)
-			#print_code(' ' * indent)
-			#print_code('%s = %s[%s]\n' % (final_name, item['actual_name'], last_temp_name))
 		
 		if item['data_type'] == 'char':
 			return 'ord(%s)' % final_name
@@ -168,11 +164,10 @@ class FunctionCallNode(BaseNode):
 		self.value = None
 
 	def generate_code(self, table=None):
-		#print(self.func)
-		#self.argument_list.generate_code()
-		#pass
 		temp_args = []
 		pos = self.argument_list
+
+		# calculate values of argument expressions(if necessary)
 		while isinstance(pos, ArgumentListNode):
 			if pos.next_arg.is_leaf():
 				temp_args.append(pos.next_arg)
@@ -181,7 +176,6 @@ class FunctionCallNode(BaseNode):
 			else:
 				temp_args.append(pos.next_arg.generate_code())
 			pos = pos.previous_args
-
 
 		if pos is None:
 			pass
@@ -194,11 +188,13 @@ class FunctionCallNode(BaseNode):
 
 		temp_args.reverse()
 
+		# print code for function names
 		temp_name = generate_unique_tempname()
 		print_code(' ' * indent)
 		print_code("%s = %s" % (temp_name, self.func.item['actual_name']))
 		print_code('(')
 
+		# print code for arguments
 		for i in range(len(temp_args)):
 			arg = temp_args[i]
 			if isinstance(arg, BaseNode):
@@ -210,7 +206,6 @@ class FunctionCallNode(BaseNode):
 				print_code(', ')
 		print_code(')\n')
 		return temp_name
-		#print(temp_args)
 
 
 class ArgumentListNode(BaseNode):
@@ -290,7 +285,6 @@ class ExpressionNode(BaseNode):
 		else:
 			if op1.value is not None and op2.value is not None:
 				self.value = self.cal_binary_expression(op1.value, operator, op2.value)
-		#print(self.value)
 
 	def generate_code(self, table=None):
 		new_symbol_name = None
@@ -347,7 +341,7 @@ class ExpressionNode(BaseNode):
 				print_code(self.op1.value)
 			else:
 				print_code(temp_op1)
-				
+
 			print_code('\n')
 			return new_symbol_name
 
