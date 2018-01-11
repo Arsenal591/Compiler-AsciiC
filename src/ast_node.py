@@ -297,65 +297,57 @@ class ExpressionNode(BaseNode):
 		if self.op2 is not None:
 			is_leaf_1 = self.op1.is_leaf()
 			is_leaf_2 = self.op2.is_leaf()
-			if self.operator in assign_operators:
-				if is_leaf_1 == False and self.op1.value is None:
-					temp_op1 = self.op1.generate_code()
-				if is_leaf_2 == False and self.op2.value is None:
-					temp_op2 = self.op2.generate_code()
-				print_code(' ' * indent)
-				if is_leaf_1:
-					self.op1.generate_code()
-				else:
-					print_code(temp_op1)
-				print_code(' ')
-				print_operator(self.operator)
-				print_code(' ')
-				if is_leaf_2:
-					self.op2.generate_code()
-				elif self.op2.value is not None:
-					print_code(self.op2.value)
-				else:
-					print_code(temp_op2)
-				print_code('\n')
-			else:
-				if is_leaf_1 == False and self.op1.value is None:
-					temp_op1 = self.op1.generate_code()
-				if is_leaf_2 == False and self.op2.value is None:
-					temp_op2 = self.op2.generate_code()
-				print_code(' ' * indent)
-				new_symbol_name = generate_unique_tempname()
-				print_code('%s = ' % new_symbol_name)
-				if is_leaf_1:
-					self.op1.generate_code()
-				elif self.op1.value is not None:
-					print_code(self.op1.value)
-				else:
-					print_code(temp_op1)
-				print_code(' ')
-				print_operator(self.operator)
-				print_code(' ')
-				if is_leaf_2:
-					self.op2.generate_code()
-				elif self.op2.value is not None:
-					print_code(self.op2.value)
-				else:
-					print_code(temp_op2)
-				print_code('\n')
-				return new_symbol_name
-		else:
-			is_leaf_1 = self.op1.is_leaf()
+
+			# For complex expressions, deal with sub-expressions first.
 			if is_leaf_1 == False and self.op1.value is None:
 				temp_op1 = self.op1.generate_code()
+			if is_leaf_2 == False and self.op2.value is None:
+				temp_op2 = self.op2.generate_code()
+			
 			print_code(' ' * indent)
-			new_symbol_name = generate_unique_tempname()
-			print_code('%s = ' % new_symbol_name)
-			print_operator(self.operator)
+
+			if self.operator not in assign_operators:
+				new_symbol_name = generate_unique_tempname()
+				print_code('%s = ' % new_symbol_name)
+
 			if is_leaf_1:
 				self.op1.generate_code()
 			elif self.op1.value is not None:
 				print_code(self.op1.value)
 			else:
 				print_code(temp_op1)
+
+			print_code(' ')
+			print_operator(self.operator)
+			print_code(' ')
+
+			if is_leaf_2:
+				self.op2.generate_code()
+			elif self.op2.value is not None:
+				print_code(self.op2.value)
+			else:
+				print_code(temp_op2)
+
+			print_code('\n')
+			if self.operator not in assign_operators:
+				return new_symbol_name
+		else:
+			is_leaf_1 = self.op1.is_leaf()
+			if is_leaf_1 == False and self.op1.value is None:
+				temp_op1 = self.op1.generate_code()
+
+			print_code(' ' * indent)
+			new_symbol_name = generate_unique_tempname()
+			print_code('%s = ' % new_symbol_name)
+			print_operator(self.operator)
+
+			if is_leaf_1:
+				self.op1.generate_code()
+			elif self.op1.value is not None:
+				print_code(self.op1.value)
+			else:
+				print_code(temp_op1)
+				
 			print_code('\n')
 			return new_symbol_name
 
