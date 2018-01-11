@@ -11,6 +11,8 @@ operator_mappings = {
 	'&&' : 'and',
 }
 
+internal_functions = ['printf', ]
+
 def generate_unique_tempname():
 	global temp_var_count
 	temp_var_count += 1
@@ -90,7 +92,7 @@ class IdentifierNode(BaseNode):
 		self.data_type = None
 
 	def generate_code(self, table=None):
-		if self.item['data_type'] == 'char':
+		if self.item['data_type'] == 'char' and len(self.item['array_size']) == 0:
 			print_code('ord(%s)' % self.item['actual_name'])
 		else:
 			print_code(self.item['actual_name'])
@@ -163,6 +165,9 @@ class FunctionCallNode(BaseNode):
 		self.data_type = self.func.item['return_type']
 		self.value = None
 
+		if self.func.item['actual_name'] in internal_functions:
+			return
+
 		args_type = []
 		pos = self.argument_list
 		while isinstance(pos, ArgumentListNode):
@@ -204,6 +209,9 @@ class FunctionCallNode(BaseNode):
 
 		temp_args.reverse()
 
+		if self.func.item['actual_name'] == 'printf':
+			return self.print_printf_function(temp_args)
+
 		# print code for function names
 		temp_name = generate_unique_tempname()
 		print_code(' ' * indent)
@@ -220,6 +228,28 @@ class FunctionCallNode(BaseNode):
 
 			if i < len(temp_args) - 1:
 				print_code(', ')
+		print_code(')\n')
+		return temp_name
+
+	def print_printf_function(self, args):
+		temp_name = generate_unique_tempname()
+		print_code(' ' * indent)
+		print_code("%s = %s" % (temp_name, 'print'))
+		print_code('(')
+
+		for i in range(len(args)):
+			arg = args[i]
+			if isinstance(arg, BaseNode):
+				arg.generate_code()
+			else:
+				print_code(arg)
+
+			if i == 0:
+				print_code(' % (')
+			elif i < len(args) - 1:
+				print_code(', ')
+			else:
+				print_code(')')
 		print_code(')\n')
 		return temp_name
 
