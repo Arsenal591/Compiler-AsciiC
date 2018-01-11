@@ -190,6 +190,14 @@ class FunctionCallNode(BaseNode):
 			raise SyntaxError('Function %s requires %d arguments but %d is given.' \
 							% (self.func.item['actual_name'], required_len, actual_len))
 
+		for i in range(required_len):
+			type_1 = self.func.item['param_type_list'][i]
+			type_2 = args_type[i]
+			if type_1 == 'int' and type_2 == 'float':
+				raise SyntaxError('Function %s requires %s type for %dth argument, but %s type is given.'\
+								% (self.func.item['actual_name'], type_1, i, type_2))
+
+
 	def generate_code(self, table=None):
 		temp_args = []
 		pos = self.argument_list

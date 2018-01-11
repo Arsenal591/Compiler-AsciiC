@@ -5,10 +5,10 @@ stackNumber = [0] * 255
 temp_var_2 = -1
 stackNumberTop = temp_var_2
 def get_pri(ope):
-    global stackOpeTop
     global stackOpe
-    global stackNumberTop
+    global stackOpeTop
     global stackNumber
+    global stackNumberTop
     temp_var_3 = ope == 40
     if temp_var_3:
         return 0
@@ -26,10 +26,10 @@ def get_pri(ope):
     return temp_var_10
 
 def compute(ope):
-    global stackOpeTop
     global stackOpe
-    global stackNumberTop
+    global stackOpeTop
     global stackNumber
+    global stackNumberTop
     n = None
     n1 = None
     n2 = None
@@ -63,10 +63,10 @@ def compute(ope):
     stackNumber[temp_var_24] = n
 
 def deal_ope(ope):
-    global stackOpeTop
     global stackOpe
-    global stackNumberTop
+    global stackOpeTop
     global stackNumber
+    global stackNumberTop
     old_ope = None
     temp_var_25 = stackOpeTop < 0
     temp_var_26 = ope == 40
@@ -112,10 +112,10 @@ def deal_ope(ope):
     stackOpe[temp_var_47] = ope
 
 def deal_bracket():
-    global stackOpeTop
     global stackOpe
-    global stackNumberTop
+    global stackOpeTop
     global stackNumber
+    global stackNumberTop
     temp_var_48 = 1 * stackOpeTop
     temp_var_49 = temp_var_48 + 0
     old_ope = stackOpe[temp_var_49]
@@ -137,10 +137,10 @@ def deal_bracket():
     stackOpeTop -= 1
 
 def main():
-    global stackOpeTop
     global stackOpe
-    global stackNumberTop
+    global stackOpeTop
     global stackNumber
+    global stackNumberTop
     string = "113+(26-2)*4/(2+1)\0"
     i = 0
     value = 0
